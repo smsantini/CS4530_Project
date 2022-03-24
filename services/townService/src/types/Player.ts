@@ -1,6 +1,8 @@
 import { nanoid } from 'nanoid';
 import { ServerConversationArea } from '../client/TownsServiceClient';
 import { UserLocation } from '../CoveyTypes';
+import BaseCar from './car/Car';
+import GreenCar from './car/GreenCar';
 
 /**
  * Each user who is connected to a town is represented by a Player object
@@ -18,6 +20,8 @@ export default class Player {
   /** The current ConversationArea that the player is in, or undefined if they are not located within one */
   private _activeConversationArea?: ServerConversationArea;
 
+  private _car: BaseCar;
+
   constructor(userName: string) {
     this.location = {
       x: 0,
@@ -27,6 +31,7 @@ export default class Player {
     };
     this._userName = userName;
     this._id = nanoid();
+    this._car = new GreenCar();
   }
 
   get userName(): string {
@@ -39,6 +44,14 @@ export default class Player {
 
   get activeConversationArea(): ServerConversationArea | undefined {
     return this._activeConversationArea;
+  }
+
+  get car(): BaseCar {
+    return this._car;
+  }
+
+  set carActive(status: boolean) {
+    this.car.active = status;
   }
 
   set activeConversationArea(conversationArea: ServerConversationArea | undefined) {
