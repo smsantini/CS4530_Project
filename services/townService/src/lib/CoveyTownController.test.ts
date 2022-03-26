@@ -289,4 +289,48 @@ describe('CoveyTownController', () => {
       expect(mockListener.onConversationAreaUpdated).toHaveBeenCalledTimes(1);
     });
   });
+  describe('player car actions', () => {
+    let testingTown: CoveyTownController;
+    let player: Player;
+    const mockListeners = [mock<CoveyTownListener>(),
+      mock<CoveyTownListener>(),
+      mock<CoveyTownListener>()];
+    beforeEach(() => {
+      const townName = `player car action tests ${nanoid()}`;
+      testingTown = new CoveyTownController(townName, false);
+      player = new Player(nanoid());
+      testingTown.addPlayer(player);
+      mockListeners.forEach(mockReset);
+    });
+
+    describe('playerEnterCar', () => {
+      it('should update player to have an active car', () => {
+        expect(player.isDriving).toBeFalsy();
+        testingTown.playerEnterCar(player);
+        expect(player.isDriving).toBeTruthy();
+      });
+      it('should update listeners that player has entered car', () => {
+        mockListeners.forEach(l => expect(l.onPlayerEnteredCar).not.toBeCalled());
+        testingTown.playerEnterCar(player);
+        mockListeners.forEach(l => expect(l.onPlayerEnteredCar).toBeCalled());
+      });
+    });
+
+    describe('playerExitCar', () => {
+      beforeEach(() => {
+        player.isDriving = true;
+      });
+
+      it('should update player to have an active car', () => {
+        expect(player.isDriving).toBeTruthy();
+        testingTown.playerExitCar(player);
+        expect(player.isDriving).toBeFalsy();
+      });
+      it('should update listeners that player has entered car', () => {
+        mockListeners.forEach(l => expect(l.onPlayerExitedCar).not.toBeCalled());
+        testingTown.playerEnterCar(player);
+        mockListeners.forEach(l => expect(l.onPlayerExitedCar).toBeCalled());
+      });
+    });
+  });
 });

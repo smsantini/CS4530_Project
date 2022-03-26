@@ -263,4 +263,21 @@ export default class CoveyTownController {
     this._listeners.forEach(listener => listener.onTownDestroyed());
   }
 
+  /**
+   * Update a player as currently driving, notify all listeners
+   * @param player 
+   */
+  playerEnterCar(player: Player): void {
+    player.isDriving = true;
+    this._listeners.forEach(l => l.onPlayerEnteredCar(player));
+  }
+
+  /**
+   * Update a player as NOT currently driving, notify all listeners
+   * @param player 
+   */
+  playerExitCar(player: Player): void {
+    player.isDriving = false;
+    this._listeners.forEach(l => l.onPlayerExitedCar(player));
+  }
 }

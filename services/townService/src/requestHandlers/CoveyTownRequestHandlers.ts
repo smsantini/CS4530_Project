@@ -228,6 +228,12 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onChatMessage(message: ChatMessage){
       socket.emit('chatMessage', message);
     },
+    onPlayerEnteredCar(player: Player){
+      socket.emit('carEntered', player);
+    },
+    onPlayerExitedCar(player: Player){
+      socket.emit('carExited', player);
+    },
   };
 }
 
@@ -271,5 +277,17 @@ export function townSubscriptionHandler(socket: Socket): void {
   // location, inform the CoveyTownController
   socket.on('playerMovement', (movementData: UserLocation) => {
     townController.updatePlayerLocation(s.player, movementData);
+  });
+  
+  // Register an event listener for the client socket: if the client enters a car,
+  // inform the CoveyTownController
+  socket.on('carEntered', (player: Player) => {
+    townController.playerEnterCar(player);
+  });
+
+  // Register an event listener for the client socket: if the client enters a car,
+  // inform the CoveyTownController
+  socket.on('carExited', (player: Player) => {
+    townController.playerExitCar(player);
   });
 }

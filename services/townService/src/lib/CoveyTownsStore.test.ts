@@ -29,6 +29,12 @@ function mockCoveyListener(): CoveyTownListener {
     onChatMessage(message: ChatMessage){
       mockCoveyListenerOtherFns(message);
     },
+    onPlayerEnteredCar(player: Player) {
+      mockCoveyListenerOtherFns(player);
+    },
+    onPlayerLeavedCar(player: Player) {
+      mockCoveyListenerOtherFns(player);
+    }
   };
 }
 

@@ -46,4 +46,16 @@ export default interface CoveyTownListener {
    * @param message the new chat message
    */
   onChatMessage(message: ChatMessage): void;
+
+  /**
+   * Called when a player enters a car
+   * @param player the player that entered a car
+   */
+  onPlayerEnteredCar(player: Player): void;
+
+  /**
+   * Called when a player exits a car
+   * @param player the player that exits a car
+   */
+  onPlayerExitedCar(player: Player): void;
 }

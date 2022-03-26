@@ -45,17 +45,21 @@ export default class Player {
   get activeConversationArea(): ServerConversationArea | undefined {
     return this._activeConversationArea;
   }
+  
+  set activeConversationArea(conversationArea: ServerConversationArea | undefined) {
+    this._activeConversationArea = conversationArea;
+  }
 
   get car(): BaseCar {
     return this._car;
   }
 
-  set carActive(status: boolean) {
-    this.car.active = status;
+  get isDriving(): boolean {
+    return this.car.active;
   }
 
-  set activeConversationArea(conversationArea: ServerConversationArea | undefined) {
-    this._activeConversationArea = conversationArea;
+  set isDriving(status: boolean) {
+    this.car.active = status;
   }
 
   /**
