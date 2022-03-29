@@ -1,3 +1,6 @@
+import Car from './Car/Car';
+import { ServerCar } from './Car/Types';
+
 export default class Player {
   public location?: UserLocation;
 
@@ -9,10 +12,13 @@ export default class Player {
 
   public label?: Phaser.GameObjects.Text;
 
-  constructor(id: string, userName: string, location: UserLocation) {
+  public car: Car;
+
+  constructor(id: string, userName: string, location: UserLocation, car: Car) {
     this._id = id;
     this._userName = userName;
     this.location = location;
+    this.car = car;
   }
 
   get userName(): string {
@@ -23,11 +29,21 @@ export default class Player {
     return this._id;
   }
 
+  get isDriving(): boolean {
+    return this.car.active;
+  }
+
+  set isDriving(isDriving: boolean) {
+    this.car.active = isDriving;
+  }
+
   static fromServerPlayer(playerFromServer: ServerPlayer): Player {
-    return new Player(playerFromServer._id, playerFromServer._userName, playerFromServer.location);
+    const car = Car.fromServerCar(playerFromServer.car);
+    return new Player(playerFromServer._id, playerFromServer._userName, playerFromServer.location, car);
   }
 }
-export type ServerPlayer = { _id: string, _userName: string, location: UserLocation };
+
+export type ServerPlayer = { _id: string, _userName: string, location: UserLocation, car: ServerCar };
 
 export type Direction = 'front'|'back'|'left'|'right';
 

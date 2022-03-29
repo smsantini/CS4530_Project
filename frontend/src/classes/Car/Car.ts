@@ -1,6 +1,6 @@
 import { CarType, CarSpeed, ServerCar } from './Types';
 
-export default class BaseCar {
+export default class Car {
 
   private readonly _speed: CarSpeed;
 
@@ -32,7 +32,7 @@ export default class BaseCar {
     this._active = status;
   }
 
-  static fromServerCar(carFromServer: ServerCar): BaseCar {
-    return new BaseCar(carFromServer._speed, carFromServer._type);
+  static fromServerCar(carFromServer: ServerCar): Car {
+    return new Car(carFromServer._speed, carFromServer._type);
   }
 }
