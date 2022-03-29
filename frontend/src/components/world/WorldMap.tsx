@@ -88,7 +88,7 @@ class CoveyGameScene extends Phaser.Scene {
     this.load.image('14_Basement_32x32', '/assets/tilesets/14_Basement_32x32.png');
     this.load.image('16_Grocery_store_32x32', '/assets/tilesets/16_Grocery_store_32x32.png');
     this.load.tilemapTiledJSON('map', '/assets/tilemaps/indoors.json');
-    this.load.atlas('atlas', '/assets/atlas/atlas.png', '/assets/atlas/atlas.json');
+    this.load.atlas('atlas_misa', '/assets/atlas_misa/atlas_misa.png', '/assets/atlas_misa/atlas_misa.json');
   }
 
   /**
@@ -186,7 +186,7 @@ class CoveyGameScene extends Phaser.Scene {
         sprite = this.physics.add
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore - JB todo
-          .sprite(0, 0, 'atlas', 'misa-front')
+          .sprite(0, 0, 'atlas_misa', 'misa-front')
           .setSize(30, 40)
           .setOffset(0, 24);
         const label = this.add.text(0, 0, myPlayer.userName, {
@@ -206,7 +206,7 @@ class CoveyGameScene extends Phaser.Scene {
         sprite.anims.play(`misa-${player.location.rotation}-walk`, true);
       } else {
         sprite.anims.stop();
-        sprite.setTexture('atlas', `misa-${player.location.rotation}`);
+        sprite.setTexture('atlas_misa', `misa-${player.location.rotation}`);
       }
     }
   }
@@ -263,12 +263,12 @@ class CoveyGameScene extends Phaser.Scene {
           this.player.sprite.anims.stop();
           // If we were moving, pick and idle frame to use
           if (prevVelocity.x < 0) {
-            this.player.sprite.setTexture('atlas', 'misa-left');
+            this.player.sprite.setTexture('atlas_misa', 'misa-left');
           } else if (prevVelocity.x > 0) {
-            this.player.sprite.setTexture('atlas', 'misa-right');
+            this.player.sprite.setTexture('atlas_misa', 'misa-right');
           } else if (prevVelocity.y < 0) {
-            this.player.sprite.setTexture('atlas', 'misa-back');
-          } else if (prevVelocity.y > 0) this.player.sprite.setTexture('atlas', 'misa-front');
+            this.player.sprite.setTexture('atlas_misa', 'misa-back');
+          } else if (prevVelocity.y > 0) this.player.sprite.setTexture('atlas_misa', 'misa-front');
           break;
       }
 
@@ -463,7 +463,7 @@ class CoveyGameScene extends Phaser.Scene {
     // has a bit of whitespace, so I'm using setSize & setOffset to control the size of the
     // player's body.
     const sprite = this.physics.add
-      .sprite(spawnPoint.x, spawnPoint.y, 'atlas', 'misa-front')
+      .sprite(spawnPoint.x, spawnPoint.y, 'atlas_misa', 'misa-front')
       .setSize(30, 40)
       .setOffset(0, 24);
     const label = this.add.text(spawnPoint.x, spawnPoint.y - 20, '(You)', {
@@ -545,7 +545,7 @@ class CoveyGameScene extends Phaser.Scene {
     const { anims } = this;
     anims.create({
       key: 'misa-left-walk',
-      frames: anims.generateFrameNames('atlas', {
+      frames: anims.generateFrameNames('atlas_misa', {
         prefix: 'misa-left-walk.',
         start: 0,
         end: 3,
@@ -556,7 +556,7 @@ class CoveyGameScene extends Phaser.Scene {
     });
     anims.create({
       key: 'misa-right-walk',
-      frames: anims.generateFrameNames('atlas', {
+      frames: anims.generateFrameNames('atlas_misa', {
         prefix: 'misa-right-walk.',
         start: 0,
         end: 3,
@@ -567,7 +567,7 @@ class CoveyGameScene extends Phaser.Scene {
     });
     anims.create({
       key: 'misa-front-walk',
-      frames: anims.generateFrameNames('atlas', {
+      frames: anims.generateFrameNames('atlas_misa', {
         prefix: 'misa-front-walk.',
         start: 0,
         end: 3,
@@ -578,7 +578,7 @@ class CoveyGameScene extends Phaser.Scene {
     });
     anims.create({
       key: 'misa-back-walk',
-      frames: anims.generateFrameNames('atlas', {
+      frames: anims.generateFrameNames('atlas_misa', {
         prefix: 'misa-back-walk.',
         start: 0,
         end: 3,
