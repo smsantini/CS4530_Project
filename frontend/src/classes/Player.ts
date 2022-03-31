@@ -1,7 +1,7 @@
 import Car from './Car/Car';
 import { ServerCar } from './Car/Types';
 
-const PLAYER_WALKING_SPEED = 1.75;
+const PLAYER_WALKING_SPEED = 175;
 
 export default class Player {
   public location?: UserLocation;

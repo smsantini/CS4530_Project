@@ -5,6 +5,6 @@ import BaseCar from './Car';
  */
 export default class GreenCar extends BaseCar {
   constructor() {
-    super(1.25, 'REGULAR_GREEN');
+    super(300, 'REGULAR_GREEN');
   }
 }

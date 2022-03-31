@@ -232,87 +232,91 @@ class CoveyGameScene extends Phaser.Scene {
       return;
     }
     if (this.player && this.cursors) {
-      const speed = 175;
+      const myPlayer = this.players.find(p => p.id === this.myPlayerID);
+      if (myPlayer) {
+        const { speed } = myPlayer;
+        // const speed = 175;
 
-      const prevVelocity = this.player.sprite.body.velocity.clone();
-      const body = this.player.sprite.body as Phaser.Physics.Arcade.Body;
+        const prevVelocity = this.player.sprite.body.velocity.clone();
+        const body = this.player.sprite.body as Phaser.Physics.Arcade.Body;
 
-      // Stop any previous movement from the last frame
-      body.setVelocity(0);
+        // Stop any previous movement from the last frame
+        body.setVelocity(0);
 
-      const primaryDirection = this.getNewMovementDirection();
-      switch (primaryDirection) {
-        case 'left':
-          body.setVelocityX(-speed);
-          this.player.sprite.anims.play('misa-left-walk', true);
-          break;
-        case 'right':
-          body.setVelocityX(speed);
-          this.player.sprite.anims.play('misa-right-walk', true);
-          break;
-        case 'front':
-          body.setVelocityY(speed);
-          this.player.sprite.anims.play('misa-front-walk', true);
-          break;
-        case 'back':
-          body.setVelocityY(-speed);
-          this.player.sprite.anims.play('misa-back-walk', true);
-          break;
-        default:
-          // Not moving
-          this.player.sprite.anims.stop();
-          // If we were moving, pick and idle frame to use
-          if (prevVelocity.x < 0) {
-            this.player.sprite.setTexture('atlas_misa', 'misa-left');
-          } else if (prevVelocity.x > 0) {
-            this.player.sprite.setTexture('atlas_misa', 'misa-right');
-          } else if (prevVelocity.y < 0) {
-            this.player.sprite.setTexture('atlas_misa', 'misa-back');
-          } else if (prevVelocity.y > 0) this.player.sprite.setTexture('atlas_misa', 'misa-front');
-          break;
-      }
-
-      // Normalize and scale the velocity so that player can't move faster along a diagonal
-      this.player.sprite.body.velocity.normalize().scale(speed);
-
-      const isMoving = primaryDirection !== undefined;
-      this.player.label.setX(body.x);
-      this.player.label.setY(body.y - 20);
-      if (
-        !this.lastLocation ||
-        this.lastLocation.x !== body.x ||
-        this.lastLocation.y !== body.y ||
-        (isMoving && this.lastLocation.rotation !== primaryDirection) ||
-        this.lastLocation.moving !== isMoving
-      ) {
-        if (!this.lastLocation) {
-          this.lastLocation = {
-            x: body.x,
-            y: body.y,
-            rotation: primaryDirection || 'front',
-            moving: isMoving,
-          };
+        const primaryDirection = this.getNewMovementDirection();
+        switch (primaryDirection) {
+          case 'left':
+            body.setVelocityX(-speed);
+            this.player.sprite.anims.play('misa-left-walk', true);
+            break;
+          case 'right':
+            body.setVelocityX(speed);
+            this.player.sprite.anims.play('misa-right-walk', true);
+            break;
+          case 'front':
+            body.setVelocityY(speed);
+            this.player.sprite.anims.play('misa-front-walk', true);
+            break;
+          case 'back':
+            body.setVelocityY(-speed);
+            this.player.sprite.anims.play('misa-back-walk', true);
+            break;
+          default:
+            // Not moving
+            this.player.sprite.anims.stop();
+            // If we were moving, pick and idle frame to use
+            if (prevVelocity.x < 0) {
+              this.player.sprite.setTexture('atlas_misa', 'misa-left');
+            } else if (prevVelocity.x > 0) {
+              this.player.sprite.setTexture('atlas_misa', 'misa-right');
+            } else if (prevVelocity.y < 0) {
+              this.player.sprite.setTexture('atlas_misa', 'misa-back');
+            } else if (prevVelocity.y > 0) this.player.sprite.setTexture('atlas_misa', 'misa-front');
+            break;
         }
-        this.lastLocation.x = body.x;
-        this.lastLocation.y = body.y;
-        this.lastLocation.rotation = primaryDirection || 'front';
-        this.lastLocation.moving = isMoving;
-        if (this.currentConversationArea) {
-          if(this.currentConversationArea.conversationArea){
-            this.lastLocation.conversationLabel = this.currentConversationArea.label;
+
+        // Normalize and scale the velocity so that player can't move faster along a diagonal
+        this.player.sprite.body.velocity.normalize().scale(speed);
+
+        const isMoving = primaryDirection !== undefined;
+        this.player.label.setX(body.x);
+        this.player.label.setY(body.y - 20);
+        if (
+          !this.lastLocation ||
+          this.lastLocation.x !== body.x ||
+          this.lastLocation.y !== body.y ||
+          (isMoving && this.lastLocation.rotation !== primaryDirection) ||
+          this.lastLocation.moving !== isMoving
+        ) {
+          if (!this.lastLocation) {
+            this.lastLocation = {
+              x: body.x,
+              y: body.y,
+              rotation: primaryDirection || 'front',
+              moving: isMoving,
+            };
           }
-          if (
-            !Phaser.Geom.Rectangle.Overlaps(
-              this.currentConversationArea.sprite.getBounds(),
-              this.player.sprite.getBounds(),
-            )
-          ) {
-            this.infoTextBox?.setVisible(false);
-            this.currentConversationArea = undefined;
-            this.lastLocation.conversationLabel = undefined;
+          this.lastLocation.x = body.x;
+          this.lastLocation.y = body.y;
+          this.lastLocation.rotation = primaryDirection || 'front';
+          this.lastLocation.moving = isMoving;
+          if (this.currentConversationArea) {
+            if(this.currentConversationArea.conversationArea){
+              this.lastLocation.conversationLabel = this.currentConversationArea.label;
+            }
+            if (
+              !Phaser.Geom.Rectangle.Overlaps(
+                this.currentConversationArea.sprite.getBounds(),
+                this.player.sprite.getBounds(),
+              )
+            ) {
+              this.infoTextBox?.setVisible(false);
+              this.currentConversationArea = undefined;
+              this.lastLocation.conversationLabel = undefined;
+            }
           }
+          this.emitMovement(this.lastLocation);
         }
-        this.emitMovement(this.lastLocation);
       }
     }
   }

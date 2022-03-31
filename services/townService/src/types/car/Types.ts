@@ -1,2 +1,2 @@
 export type CarType = 'REGULAR_GREEN';
-export type CarSpeed = 1.25 | 2;
+export type CarSpeed = 300 | 450;
