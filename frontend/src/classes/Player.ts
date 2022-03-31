@@ -44,12 +44,12 @@ export default class Player {
   }
 
   static fromServerPlayer(playerFromServer: ServerPlayer): Player {
-    const car = Car.fromServerCar(playerFromServer.car);
+    const car = Car.fromServerCar(playerFromServer._car);
     return new Player(playerFromServer._id, playerFromServer._userName, playerFromServer.location, car);
   }
 }
 
-export type ServerPlayer = { _id: string, _userName: string, location: UserLocation, car: ServerCar };
+export type ServerPlayer = { _id: string, _userName: string, location: UserLocation, _car: ServerCar };
 
 export type Direction = 'front'|'back'|'left'|'right';
 
