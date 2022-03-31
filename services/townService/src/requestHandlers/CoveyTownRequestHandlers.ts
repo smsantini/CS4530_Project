@@ -281,13 +281,13 @@ export function townSubscriptionHandler(socket: Socket): void {
   
   // Register an event listener for the client socket: if the client enters a car,
   // inform the CoveyTownController
-  socket.on('carEntered', (player: Player) => {
-    townController.playerEnterCar(player);
+  socket.on('carEntered', () => {
+    townController.playerEnterCar(s.player);
   });
 
   // Register an event listener for the client socket: if the client enters a car,
   // inform the CoveyTownController
-  socket.on('carExited', (player: Player) => {
-    townController.playerExitCar(player);
+  socket.on('carExited', () => {
+    townController.playerExitCar(s.player);
   });
 }

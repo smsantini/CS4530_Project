@@ -44,6 +44,8 @@ function wrappedTownSettings() {
     socket: null,
     emitMovement: () => {
     },
+    emitCarEntered: () => {},
+    emitCarExited: () => {},
     apiClient: new TownsServiceClient(),
   }}>
     <TownSettings/></CoveyAppContext.Provider></ChakraProvider>;

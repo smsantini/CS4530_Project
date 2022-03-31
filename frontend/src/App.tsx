@@ -50,6 +50,8 @@ type CoveyAppUpdate =
         myPlayerID: string;
         socket: Socket;
         emitMovement: (location: UserLocation) => void;
+        emitCarEntered: () => void;
+        emitCarExited: () => void;
       };
     }
   | { action: 'disconnect' };
@@ -64,6 +66,8 @@ function defaultAppState(): CoveyAppState {
     userName: '',
     socket: null,
     emitMovement: () => {},
+    emitCarEntered: () => {},
+    emitCarExited: () => {},
     apiClient: new TownsServiceClient(),
   };
 }
@@ -77,6 +81,8 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
     userName: state.userName,
     socket: state.socket,
     emitMovement: state.emitMovement,
+    emitCarEntered: state.emitCarEntered,
+    emitCarExited: state.emitCarExited,
     apiClient: state.apiClient,
   };
 
@@ -89,6 +95,8 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
       nextState.currentTownIsPubliclyListed = update.data.townIsPubliclyListed;
       nextState.userName = update.data.userName;
       nextState.emitMovement = update.data.emitMovement;
+      nextState.emitCarEntered = update.data.emitCarEntered;
+      nextState.emitCarExited = update.data.emitCarExited;
       nextState.socket = update.data.socket;
       break;
     case 'disconnect':
@@ -181,6 +189,12 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           }
         }
       };
+      const emitCarEntered = () => {
+        socket.emit('carEntered');
+      };
+      const emitCarExited = () => {
+        socket.emit('carExited');
+      }
       socket.on('newPlayer', (player: ServerPlayer) => {
         localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
         recalculateNearbyPlayers();
@@ -266,6 +280,8 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           myPlayerID: gamePlayerID,
           townIsPubliclyListed: video.isPubliclyListed,
           emitMovement,
+          emitCarEntered,
+          emitCarExited,
           socket,
         },
       });

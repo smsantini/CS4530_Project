@@ -53,6 +53,10 @@ class CoveyGameScene extends Phaser.Scene {
 
   private emitMovement: (loc: UserLocation) => void;
 
+  private emitCarEntered: () => void;
+
+  private emitCarExited: () => void;
+
   private currentConversationArea?: ConversationGameObjects;
 
   private infoTextBox?: Phaser.GameObjects.Text;
@@ -64,12 +68,16 @@ class CoveyGameScene extends Phaser.Scene {
   constructor(
     video: Video,
     emitMovement: (loc: UserLocation) => void,
+    emitCarEntered: () => void,
+    emitCarExited: () => void,
     setNewConversation: (conv: ConversationArea) => void,
     myPlayerID: string,
   ) {
     super('PlayGame');
     this.video = video;
     this.emitMovement = emitMovement;
+    this.emitCarEntered = emitCarEntered;
+    this.emitCarExited = emitCarExited;
     this.myPlayerID = myPlayerID;
     this.setNewConversation = setNewConversation;
   }
@@ -225,6 +233,19 @@ class CoveyGameScene extends Phaser.Scene {
       return 'back';
     }
     return undefined;
+  }
+
+  // Change driving status of a player
+  changeDriving(player: Player) {
+    const myPlayer = this.players.find(p => p.id === player.id);
+    if (myPlayer) {
+      if (myPlayer.isDriving) {
+        this.emitCarExited();
+      }
+      else {
+        this.emitCarEntered();
+      }
+    }
   }
 
   update() {
@@ -463,6 +484,15 @@ class CoveyGameScene extends Phaser.Scene {
       ) as Phaser.Types.Input.Keyboard.CursorKeys,
     );
 
+    const carKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+
+    carKey.on('down', () => {
+      const myPlayer = this.players.find(player => player.id === this.myPlayerID);
+      if (myPlayer !== undefined) {
+        this.changeDriving(myPlayer);
+      }
+    });
+
     // Create a sprite with physics enabled via the physics system. The image used for the sprite
     // has a bit of whitespace, so I'm using setSize & setOffset to control the size of the
     // player's body.
@@ -653,7 +683,7 @@ class CoveyGameScene extends Phaser.Scene {
 
 export default function WorldMap(): JSX.Element {
   const video = Video.instance();
-  const { emitMovement, myPlayerID } = useCoveyAppState();
+  const { emitMovement, emitCarEntered, emitCarExited, myPlayerID } = useCoveyAppState();
   const conversationAreas = useConversationAreas();
   const [gameScene, setGameScene] = useState<CoveyGameScene>();
   const [newConversation, setNewConversation] = useState<ConversationArea>();
@@ -681,7 +711,7 @@ export default function WorldMap(): JSX.Element {
 
     const game = new Phaser.Game(config);
     if (video) {
-      const newGameScene = new CoveyGameScene(video, emitMovement, setNewConversation, myPlayerID);
+      const newGameScene = new CoveyGameScene(video, emitMovement, emitCarEntered, emitCarExited, setNewConversation, myPlayerID);
       setGameScene(newGameScene);
       game.scene.add('coveyBoard', newGameScene, true);
       video.pauseGame = () => {
@@ -694,7 +724,7 @@ export default function WorldMap(): JSX.Element {
     return () => {
       game.destroy(true);
     };
-  }, [video, emitMovement, setNewConversation, myPlayerID]);
+  }, [video, emitMovement, emitCarEntered, emitCarExited, setNewConversation, myPlayerID]);
 
   useEffect(() => {
     const movementDispatcher = (player: ServerPlayer) => {
