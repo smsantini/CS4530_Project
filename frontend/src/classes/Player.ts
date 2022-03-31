@@ -1,6 +1,8 @@
 import Car from './Car/Car';
 import { ServerCar } from './Car/Types';
 
+const PLAYER_WALKING_SPEED = 1.75;
+
 export default class Player {
   public location?: UserLocation;
 
@@ -35,6 +37,10 @@ export default class Player {
 
   set isDriving(isDriving: boolean) {
     this.car.active = isDriving;
+  }
+
+  get speed(): number {
+    return this.isDriving ? this.car.speed : PLAYER_WALKING_SPEED;
   }
 
   static fromServerPlayer(playerFromServer: ServerPlayer): Player {

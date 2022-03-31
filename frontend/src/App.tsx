@@ -235,6 +235,27 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         setConversationAreas(localConversationAreas);
         recalculateNearbyPlayers();
       });
+      socket.on('carEntered', (player: ServerPlayer) => {
+        const updatePlayerIndex = localPlayers.findIndex(p => p.id === player._id);
+        if (updatePlayerIndex !== -1) {
+          localPlayers[updatePlayerIndex] = Player.fromServerPlayer(player);
+        } else {
+          // this generally should not be reached
+          localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
+        }
+        setPlayersInTown(localPlayers);
+      });
+      socket.on('carExited', (player: ServerPlayer) => {
+        const updatePlayerIndex = localPlayers.findIndex(p => p.id === player._id);
+        if (updatePlayerIndex !== -1) {
+          localPlayers[updatePlayerIndex] = Player.fromServerPlayer(player);
+        } else {
+          // this generally should not be reached
+          localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
+        }
+        setPlayersInTown(localPlayers);
+      });
+
       dispatchAppUpdate({
         action: 'doConnect',
         data: {

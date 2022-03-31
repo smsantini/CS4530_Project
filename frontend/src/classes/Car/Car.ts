@@ -10,10 +10,10 @@ export default class Car {
 
   // public sprite?: Phaser.GameObjects.Sprite;
 
-  constructor(speed: CarSpeed, type: CarType) {
+  constructor(speed: CarSpeed, type: CarType, active: boolean) {
     this._speed = speed;
     this._type = type;
-    this._active = false;
+    this._active = active;
   }
 
   get speed(): CarSpeed {
@@ -33,6 +33,6 @@ export default class Car {
   }
 
   static fromServerCar(carFromServer: ServerCar): Car {
-    return new Car(carFromServer._speed, carFromServer._type);
+    return new Car(carFromServer._speed, carFromServer._type, carFromServer._active);
   }
 }
