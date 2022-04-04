@@ -250,9 +250,10 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         recalculateNearbyPlayers();
       });
       socket.on('carEntered', (player: ServerPlayer) => {
-        const updatePlayerIndex = localPlayers.findIndex(p => p.id === player._id);
-        if (updatePlayerIndex !== -1) {
-          localPlayers[updatePlayerIndex] = Player.fromServerPlayer(player);
+        const updatePlayer = localPlayers.find(p => p.id === player._id);
+        if (updatePlayer) {
+          updatePlayer.isDriving = true;
+          updatePlayer.car = Player.fromServerPlayer(player).car;
         } else {
           // this generally should not be reached
           localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
@@ -260,9 +261,9 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         setPlayersInTown(localPlayers);
       });
       socket.on('carExited', (player: ServerPlayer) => {
-        const updatePlayerIndex = localPlayers.findIndex(p => p.id === player._id);
-        if (updatePlayerIndex !== -1) {
-          localPlayers[updatePlayerIndex] = Player.fromServerPlayer(player);
+        const updatePlayer = localPlayers.find(p => p.id === player._id);
+        if (updatePlayer) {
+          updatePlayer.isDriving = false;
         } else {
           // this generally should not be reached
           localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
