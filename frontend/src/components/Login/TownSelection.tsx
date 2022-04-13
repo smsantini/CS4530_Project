@@ -17,12 +17,14 @@ import {
   Th,
   Thead,
   Tr,
-  useToast
+  useToast,
+  Select
 } from '@chakra-ui/react';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
 import Video from '../../classes/Video/Video';
 import { CoveyTownInfo, TownJoinResponse, } from '../../classes/TownsServiceClient';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
+import { CarType } from '../../classes/Car/Types';
 
 interface TownSelectionProps {
   doLogin: (initData: TownJoinResponse) => Promise<boolean>
@@ -34,6 +36,12 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const [newTownIsPublic, setNewTownIsPublic] = useState<boolean>(true);
   const [townIDToJoin, setTownIDToJoin] = useState<string>('');
   const [currentPublicTowns, setCurrentPublicTowns] = useState<CoveyTownInfo[]>();
+  const [carType, setCarType] = useState<CarType>('REGULAR_GREEN');
+  const availableCarsToFriendlyMapping = {
+    'REGULAR_GREEN': 'Green',
+    'REGULAR_BLUE': 'Blue',
+    'REGULAR_RED': 'Red'
+  }
   const { connect: videoConnect } = useVideoContext();
   const { apiClient } = useCoveyAppState();
   const toast = useToast();
@@ -73,7 +81,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         });
         return;
       }
-      const initData = await Video.setup(userName, coveyRoomID);
+      const initData = await Video.setup(userName, coveyRoomID, { carType });
 
       const loggedIn = await doLogin(initData);
       if (loggedIn) {
@@ -151,6 +159,27 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
               />
             </FormControl>
           </Box>
+
+          <Box p="4" borderWidth="1px" borderRadius="lg" maxH="500px" overflowY="scroll">
+            <Heading as="h2" size="lg">Select A Car To Transport Your Player</Heading>
+            <FormControl>
+              <FormLabel htmlFor="carType">Car Type</FormLabel>
+              <Select 
+                size='lg' 
+                value={carType}
+                bg={availableCarsToFriendlyMapping[carType]}
+                onChange={(e) => setCarType(e.target.value as CarType)}
+                color='white'
+                >
+                {
+                  Object.entries(availableCarsToFriendlyMapping).map(([carValueType, friendlyCarName]) =>
+                  <option key={carValueType} value={carValueType}>{friendlyCarName}</option>
+                  )
+                }
+              </Select>
+            </FormControl>
+          </Box>
+
           <Box borderWidth="1px" borderRadius="lg">
             <Heading p="4" as="h2" size="lg">Create a New Town</Heading>
             <Flex p="4">

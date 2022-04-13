@@ -2,6 +2,7 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
 import { ServerPlayer } from './Player';
 import { ServerConversationArea } from './ConversationArea';
+import { CarType } from './Car/Types';
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -11,6 +12,8 @@ export interface TownJoinRequest {
   userName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
+  /** The car type that the user would like */
+  carType: CarType;
 }
 
 /**

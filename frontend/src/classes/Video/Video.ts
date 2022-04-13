@@ -1,6 +1,6 @@
 import DebugLogger from '../DebugLogger';
 import TownsServiceClient, { TownJoinResponse } from '../TownsServiceClient';
-
+import { PlayerProperties } from '../Player';
 
 /* eslint class-methods-use-this: ["error", { "exceptMethods": ["pauseGame", "unPauseGame"] }] */
 export default class Video {
@@ -26,13 +26,16 @@ export default class Video {
 
   private _isPubliclyListed: boolean | undefined;
 
+  private _playerProperties: PlayerProperties;
+
   pauseGame: () => void = ()=>{};
 
   unPauseGame: () => void = ()=>{};
 
-  constructor(userName: string, coveyTownID: string) {
+  constructor(userName: string, coveyTownID: string, playerProperties: PlayerProperties) {
     this._userName = userName;
     this._coveyTownID = coveyTownID;
+    this._playerProperties = playerProperties;
   }
 
   get isPubliclyListed(): boolean {
@@ -61,6 +64,7 @@ export default class Video {
         this.townsServiceClient.joinTown({
           coveyTownID: this._coveyTownID,
           userName: this._userName,
+          carType: this._playerProperties.carType
         })
           .then((result) => {
             this.sessionToken = result.coveySessionToken;
@@ -100,11 +104,11 @@ export default class Video {
     return this.teardownPromise ?? Promise.resolve();
   }
 
-  public static async setup(username: string, coveyTownID: string): Promise<TownJoinResponse> {
+  public static async setup(username: string, coveyTownID: string, playerProperties: PlayerProperties): Promise<TownJoinResponse> {
     let result = null;
 
     if (!Video.video) {
-      Video.video = new Video(username, coveyTownID);
+      Video.video = new Video(username, coveyTownID, playerProperties);
     }
 
     try {

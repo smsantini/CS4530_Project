@@ -1,5 +1,5 @@
 import Car from './Car/Car';
-import { ServerCar } from './Car/Types';
+import { ServerCar, CarType } from './Car/Types';
 
 const PLAYER_WALKING_SPEED = 175;
 
@@ -60,3 +60,7 @@ export type UserLocation = {
   moving: boolean,
   conversationLabel?: string
 };
+
+export type PlayerProperties = {
+  carType: CarType
+}
