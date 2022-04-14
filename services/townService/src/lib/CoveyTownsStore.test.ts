@@ -34,7 +34,7 @@ function mockCoveyListener(): CoveyTownListener {
     },
     onPlayerExitedCar(player: Player) {
       mockCoveyListenerOtherFns(player);
-    }
+    },
   };
 }
 

@@ -61,6 +61,7 @@ describe('Create Conversation Area API', () => {
     const testingSession = await apiClient.joinTown({
       userName: nanoid(),
       coveyTownID: testingTown.coveyTownID,
+      carType: 'REGULAR_GREEN',
     });
     await apiClient.createConversationArea({
       conversationArea: createConversationForTesting(),

@@ -1,8 +1,11 @@
 import { nanoid } from 'nanoid';
 import { ServerConversationArea } from '../client/TownsServiceClient';
 import { UserLocation } from '../CoveyTypes';
+import BlueCar from './car/BlueCar';
 import BaseCar from './car/Car';
 import GreenCar from './car/GreenCar';
+import RedCar from './car/RedCar';
+import { CarType } from './car/Types';
 
 /**
  * Each user who is connected to a town is represented by a Player object
@@ -22,7 +25,7 @@ export default class Player {
 
   private _car: BaseCar;
 
-  constructor(userName: string) {
+  constructor(userName: string, carType?: CarType) {
     this.location = {
       x: 0,
       y: 0,
@@ -31,7 +34,16 @@ export default class Player {
     };
     this._userName = userName;
     this._id = nanoid();
-    this._car = new GreenCar();
+    switch (carType) {
+      case 'REGULAR_BLUE':
+        this._car = new BlueCar();
+        break;
+      case 'REGULAR_RED':
+        this._car = new RedCar();
+        break;
+      default:
+        this._car = new GreenCar();
+    }
   }
 
   get userName(): string {
@@ -53,6 +65,11 @@ export default class Player {
   get car(): BaseCar {
     return this._car;
   }
+  
+  /* We don't need this setter at this moment */
+  // set car(car: BaseCar) {
+  //   this._car = car;
+  // }
 
   get isDriving(): boolean {
     return this.car.active;
@@ -61,6 +78,7 @@ export default class Player {
   set isDriving(status: boolean) {
     this.car.active = status;
   }
+
 
   /**
    * Checks to see if a player's location is within the specified conversation area

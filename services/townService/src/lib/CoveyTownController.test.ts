@@ -310,6 +310,7 @@ describe('CoveyTownController', () => {
         expect(player.isDriving).toBeTruthy();
       });
       it('should update listeners that player has entered car', () => {
+        mockListeners.forEach(listener => testingTown.addTownListener(listener));
         mockListeners.forEach(l => expect(l.onPlayerEnteredCar).not.toBeCalled());
         testingTown.playerEnterCar(player);
         mockListeners.forEach(l => expect(l.onPlayerEnteredCar).toBeCalled());
@@ -327,9 +328,24 @@ describe('CoveyTownController', () => {
         expect(player.isDriving).toBeFalsy();
       });
       it('should update listeners that player has entered car', () => {
+        mockListeners.forEach(listener => testingTown.addTownListener(listener));
         mockListeners.forEach(l => expect(l.onPlayerExitedCar).not.toBeCalled());
-        testingTown.playerEnterCar(player);
+        testingTown.playerExitCar(player);
         mockListeners.forEach(l => expect(l.onPlayerExitedCar).toBeCalled());
+      });
+    });
+
+    describe('select car types', () => {
+      it('creates the correct car object of the player when the car type is selected', async () => {
+        const player1 = new Player(nanoid(), 'REGULAR_GREEN');
+        const player2 = new Player(nanoid(), 'REGULAR_BLUE');
+        const player3 = new Player(nanoid(), 'REGULAR_RED');
+        const playerSession1 = await testingTown.addPlayer(player1);
+        expect(playerSession1.player.car.type).toBe('REGULAR_GREEN');
+        const playerSession2 = await testingTown.addPlayer(player2);
+        expect(playerSession2.player.car.type).toBe('REGULAR_BLUE');
+        const playerSession3 = await testingTown.addPlayer(player3);
+        expect(playerSession3.player.car.type).toBe('REGULAR_RED');
       });
     });
   });

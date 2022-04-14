@@ -141,6 +141,7 @@ describe('TownsServiceAPIREST', () => {
         await apiClient.joinTown({
           userName: nanoid(),
           coveyTownID,
+          carType: 'REGULAR_GREEN',
         });
         fail('Expected joinTown to throw an error');
       } catch (e) {
@@ -206,6 +207,7 @@ describe('TownsServiceAPIREST', () => {
         await apiClient.joinTown({
           userName: nanoid(),
           coveyTownID: nanoid(),
+          carType: 'REGULAR_GREEN',
         });
         fail('Expected an error to be thrown by joinTown but none thrown');
       } catch (err) {
@@ -220,6 +222,7 @@ describe('TownsServiceAPIREST', () => {
       const res = await apiClient.joinTown({
         userName: nanoid(),
         coveyTownID: pubTown1.coveyTownID,
+        carType: 'REGULAR_GREEN',
       });
       expect(res.coveySessionToken).toBeDefined();
       expect(res.coveyUserID).toBeDefined();
@@ -227,9 +230,19 @@ describe('TownsServiceAPIREST', () => {
       const res2 = await apiClient.joinTown({
         userName: nanoid(),
         coveyTownID: privTown1.coveyTownID,
+        carType: 'REGULAR_GREEN',
       });
       expect(res2.coveySessionToken).toBeDefined();
       expect(res2.coveyUserID).toBeDefined();
+    });
+    it('Sucessfully creates players with different car types', async () => {
+      const town = await createTownForTesting();
+      const res1 = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid(), carType: 'REGULAR_GREEN' });
+      expect(res1.currentPlayers).toHaveLength(1);
+      const res2 = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid(), carType: 'REGULAR_BLUE' });
+      expect(res2.currentPlayers).toHaveLength(2);
+      const res3 = await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: nanoid(), carType: 'REGULAR_RED' });
+      expect(res3.currentPlayers).toHaveLength(3);
     });
   });
 });

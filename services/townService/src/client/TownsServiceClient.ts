@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
 import { UserLocation } from '../CoveyTypes';
+import { CarType } from '../types/car/Types';
 
 
 export type ServerPlayer = { _id: string, _userName: string, location: UserLocation };
@@ -30,6 +31,8 @@ export interface TownJoinRequest {
   userName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
+  /** The type of car that the plyaer would like to drive */
+  carType: CarType;
 }
 
 /**
