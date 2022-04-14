@@ -34,7 +34,7 @@
         <key>dataFormat</key>
         <string>phaser</string>
         <key>textureFileName</key>
-        <filename>sprite_sheet.png</filename>
+        <filename>atlas_car1.png</filename>
         <key>flipPVR</key>
         <false/>
         <key>pvrQualityLevel</key>
@@ -136,7 +136,7 @@
             <key>json</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>sprite_sheet.json</filename>
+                <filename>atlas_car1.json</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -163,9 +163,9 @@
         <key>globalSpriteSettings</key>
         <struct type="SpriteSettings">
             <key>scale</key>
-            <double>1</double>
+            <double>2</double>
             <key>scaleMode</key>
-            <enum type="ScaleMode">Smooth</enum>
+            <enum type="ScaleMode">Fast</enum>
             <key>extrude</key>
             <uint>1</uint>
             <key>trimThreshold</key>
@@ -185,8 +185,8 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">car 1 back final.png</key>
-            <key type="filename">car 1 front final.png</key>
+            <key type="filename">car-1-back.000.png</key>
+            <key type="filename">car-1-front.000.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -201,8 +201,8 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">car 1 left final.png</key>
-            <key type="filename">car 1 right final 1.png</key>
+            <key type="filename">car-1-left.000.png</key>
+            <key type="filename">car-1-right.000.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -220,10 +220,10 @@
         </map>
         <key>fileList</key>
         <array>
-            <filename>car 1 left final.png</filename>
-            <filename>car 1 right final 1.png</filename>
-            <filename>car 1 front final.png</filename>
-            <filename>car 1 back final.png</filename>
+            <filename>car-1-back.000.png</filename>
+            <filename>car-1-front.000.png</filename>
+            <filename>car-1-left.000.png</filename>
+            <filename>car-1-right.000.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

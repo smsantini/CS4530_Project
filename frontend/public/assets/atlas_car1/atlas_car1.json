@@ -1,104 +1,99 @@
-{
-	"textures": [
-		{
-			"image": "atlas_car1.png",
-			"format": "RGBA8888",
-			"size": {
-				"w": 144,
-				"h": 27
-			},
-			"scale": 1,
-			"frames": [
-				{
-					"filename": "car-1-left.000.png",
-					"rotated": false,
-					"trimmed": true,
-					"sourceSize": {
-						"w": 47,
-						"h": 33
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 8,
-						"w": 47,
-						"h": 25
-					},
-					"frame": {
-						"x": 1,
-						"y": 1,
-						"w": 47,
-						"h": 25
-					}
-				},
-				{
-					"filename": "car-1-right.000.png",
-					"rotated": false,
-					"trimmed": true,
-					"sourceSize": {
-						"w": 47,
-						"h": 33
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 8,
-						"w": 47,
-						"h": 25
-					},
-					"frame": {
-						"x": 50,
-						"y": 1,
-						"w": 47,
-						"h": 25
-					}
-				},
-				{
-					"filename": "car-1-back.000.png",
-					"rotated": false,
-					"trimmed": true,
-					"sourceSize": {
-						"w": 21,
-						"h": 32
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 8,
-						"w": 21,
-						"h": 24
-					},
-					"frame": {
-						"x": 99,
-						"y": 1,
-						"w": 21,
-						"h": 24
-					}
-				},
-				{
-					"filename": "car-1-front.000.png",
-					"rotated": false,
-					"trimmed": true,
-					"sourceSize": {
-						"w": 21,
-						"h": 32
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 8,
-						"w": 21,
-						"h": 24
-					},
-					"frame": {
-						"x": 122,
-						"y": 1,
-						"w": 21,
-						"h": 24
-					}
-				}
-			]
+{"frames": {
+	
+	"car-1-left.000":
+	{
+		"frame": {
+			"x": 1,
+			"y": 1,
+			"w": 94,
+			"h": 49
+		},
+		"rotated": false,
+		"trimmed": true,
+		"sourceSize": {
+			"w": 94,
+			"h": 66
+		},
+		"spriteSourceSize": {
+			"x": 0,
+			"y": 17,
+			"w": 94,
+			"h": 49
 		}
-	],
+	},
+	"car-1-right.000":
+	{
+		"frame": {
+			"x": 97,
+			"y": 1,
+			"w": 94,
+			"h": 49
+		},
+		"rotated": false,
+		"trimmed": true,
+		"sourceSize": {
+			"w": 94,
+			"h": 66
+		},
+		"spriteSourceSize": {
+			"x": 0,
+			"y": 17,
+			"w": 94,
+			"h": 49
+		}
+	},
+	"car-1-back.000":
+	{
+		"frame": {
+			"x": 193,
+			"y": 1,
+			"w": 42,
+			"h": 47
+		},
+		"rotated": false,
+		"trimmed": true,
+		"sourceSize": {
+			"w": 42,
+			"h": 64
+		},
+		"spriteSourceSize": {
+			"x": 0,
+			"y": 17,
+			"w": 42,
+			"h": 47
+		}
+	},
+	"car-1-front.000":
+	{
+		"frame": {
+			"x": 237,
+			"y": 1,
+			"w": 42,
+			"h": 47
+		},
+		"rotated": false,
+		"trimmed": true,
+		"sourceSize": {
+			"w": 42,
+			"h": 64
+		},
+		"spriteSourceSize": {
+			"x": 0,
+			"y": 17,
+			"w": 42,
+			"h": 47
+		}			
+	}},
 	"meta": {
 		"app": "https://www.codeandweb.com/texturepacker",
 		"version": "3.0",
-		"smartupdate": "$TexturePacker:SmartUpdate:5082fad37d99b8442caa938588978ec9:2cae5390714d805b8203afe6f97dd35e:6cc8953523e0367402f95f3c9a630665$"
+		"image": "atlas_car1.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 280,
+				"h": 51
+			},
+			"scale": 2,
+		"smartupdate": "$TexturePacker:SmartUpdate:1c905501c01e80b01b87172f30e60eba:2cae5390714d805b8203afe6f97dd35e:611bb8b54f9df5ad9338ee8832b61069$"
 	}
 }

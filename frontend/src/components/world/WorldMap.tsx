@@ -97,6 +97,7 @@ class CoveyGameScene extends Phaser.Scene {
     this.load.image('16_Grocery_store_32x32', '/assets/tilesets/16_Grocery_store_32x32.png');
     this.load.tilemapTiledJSON('map', '/assets/tilemaps/indoors.json');
     this.load.atlas('atlas_misa', '/assets/atlas_misa/atlas_misa.png', '/assets/atlas_misa/atlas_misa.json');
+    this.load.atlas('atlas_car1', '/assets/atlas_car1/atlas_car1.png', '/assets/atlas_car1/atlas_car1.json');
   }
 
   /**
@@ -211,10 +212,18 @@ class CoveyGameScene extends Phaser.Scene {
       myPlayer.label?.setX(player.location.x);
       myPlayer.label?.setY(player.location.y - 20);
       if (player.location.moving) {
-        sprite.anims.play(`misa-${player.location.rotation}-walk`, true);
+        if (player.isDriving) {
+          sprite.anims.play(`car-1-${player.location.rotation}`, true);
+        } else {
+          sprite.anims.play(`misa-${player.location.rotation}-walk`, true);
+        }
       } else {
         sprite.anims.stop();
-        sprite.setTexture('atlas_misa', `misa-${player.location.rotation}`);
+        if (player.isDriving) {
+          sprite.setTexture('atlas_car1', `car-1-${player.location.rotation}.000`);
+        } else {
+          sprite.setTexture('atlas_misa', `misa-${player.location.rotation}`);
+        }
       }
     }
   }
@@ -236,14 +245,38 @@ class CoveyGameScene extends Phaser.Scene {
   }
 
   // Change driving status of a player
-  changeDriving(player: Player) {
-    const myPlayer = this.players.find(p => p.id === player.id);
+  changeDriving() {
+    const myPlayer = this.players.find(p => p.id === this.myPlayerID);
     if (myPlayer) {
       if (myPlayer.isDriving) {
         this.emitCarExited();
+        this.changeToWalk(myPlayer);
       }
       else {
         this.emitCarEntered();
+        this.changeToDrive(myPlayer);
+      }
+    }
+  }
+
+  changeToDrive(player : Player) {
+    if (player.location) { 
+      if ((player.id === this.myPlayerID) && this.player) {
+        this.player.sprite.setTexture('atlas_car1', `car-1-${player.location.rotation}.000`);
+      }
+      if (player.sprite) {
+        player.sprite.setTexture('atlas_car1', `car-1-${player.location.rotation}.000`);
+      }
+    } 
+  }
+
+  changeToWalk(player : Player) {
+    if (player.location) {
+      if ((player.id === this.myPlayerID) && this.player) {
+        this.player.sprite.setTexture('atlas_misa', `misa-${player.location.rotation}`);
+      }
+      if (player.sprite) {
+        player.sprite.setTexture('atlas_misa', `misa-${player.location.rotation}`);
       }
     }
   }
@@ -268,31 +301,89 @@ class CoveyGameScene extends Phaser.Scene {
         switch (primaryDirection) {
           case 'left':
             body.setVelocityX(-speed);
-            this.player.sprite.anims.play('misa-left-walk', true);
+            if (myPlayer.isDriving) {
+              this.player.sprite.setSize(90, 40);
+              this.player.sprite.anims.play('car-1-left', true);
+            } else {
+              this.player.sprite.setSize(30, 40);
+              this.player.sprite.anims.play('misa-left-walk', true);
+            }
             break;
           case 'right':
             body.setVelocityX(speed);
-            this.player.sprite.anims.play('misa-right-walk', true);
+            if (myPlayer.isDriving) {
+              this.player.sprite.setSize(90, 40);
+              this.player.sprite.anims.play('car-1-right', true);
+            } else {
+              this.player.sprite.setSize(30, 40);
+              this.player.sprite.anims.play('misa-right-walk', true);
+            }
             break;
           case 'front':
             body.setVelocityY(speed);
-            this.player.sprite.anims.play('misa-front-walk', true);
+            if (myPlayer.isDriving) {
+              this.player.sprite.setSize(30, 40);
+              this.player.sprite.anims.play('car-1-front', true);
+            } else {
+              this.player.sprite.setSize(30, 40);
+              this.player.sprite.anims.play('misa-front-walk', true);
+            }
             break;
           case 'back':
             body.setVelocityY(-speed);
-            this.player.sprite.anims.play('misa-back-walk', true);
+            if (myPlayer.isDriving) {
+              this.player.sprite.setSize(30, 40);
+              this.player.sprite.anims.play('car-1-back', true);
+            } else {
+              this.player.sprite.setSize(30, 40);
+              this.player.sprite.anims.play('misa-back-walk', true);
+            }
             break;
           default:
             // Not moving
             this.player.sprite.anims.stop();
             // If we were moving, pick and idle frame to use
             if (prevVelocity.x < 0) {
-              this.player.sprite.setTexture('atlas_misa', 'misa-left');
+              if (myPlayer.isDriving) {
+                this.player.sprite
+                .setTexture('atlas_car1', 'car-1-left.000')
+                .setSize(90, 40);
+              } else {
+                this.player.sprite
+                .setTexture('atlas_misa', 'misa-left')
+                .setSize(30, 40);
+              }
             } else if (prevVelocity.x > 0) {
-              this.player.sprite.setTexture('atlas_misa', 'misa-right');
+              if (myPlayer.isDriving) {
+                this.player.sprite
+                .setTexture('atlas_car1', 'car-1-right.000')
+                .setSize(90, 40);
+              } else {
+                this.player.sprite
+                .setTexture('atlas_misa', 'misa-right')
+                .setSize(30, 40);
+              }
             } else if (prevVelocity.y < 0) {
-              this.player.sprite.setTexture('atlas_misa', 'misa-back');
-            } else if (prevVelocity.y > 0) this.player.sprite.setTexture('atlas_misa', 'misa-front');
+              if (myPlayer.isDriving) {
+                this.player.sprite
+                .setTexture('atlas_car1', 'car-1-back.000')
+                .setSize(30, 40);
+              } else {
+                this.player.sprite
+                .setTexture('atlas_misa', 'misa-back')
+                .setSize(30, 40);
+              }
+            } else if (prevVelocity.y > 0) {
+              if (myPlayer.isDriving) {
+                this.player.sprite
+                .setTexture('atlas_car1', 'car-1-front.000')
+                .setSize(30, 40);
+              } else { 
+                this.player.sprite
+                .setTexture('atlas_misa', 'misa-front')
+                .setSize(30, 40);
+              }
+            }
             break;
         }
 
@@ -337,6 +428,7 @@ class CoveyGameScene extends Phaser.Scene {
             }
           }
           this.emitMovement(this.lastLocation);
+          myPlayer.location = this.lastLocation;
         }
       }
     }
@@ -487,10 +579,7 @@ class CoveyGameScene extends Phaser.Scene {
     const carKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
 
     carKey.on('down', () => {
-      const myPlayer = this.players.find(player => player.id === this.myPlayerID);
-      if (myPlayer !== undefined) {
-        this.changeDriving(myPlayer);
-      }
+      this.changeDriving();
     });
 
     // Create a sprite with physics enabled via the physics system. The image used for the sprite
@@ -621,6 +710,43 @@ class CoveyGameScene extends Phaser.Scene {
       frameRate: 10,
       repeat: -1,
     });
+    anims.create({
+      key: 'car-1-left',
+      frames: anims.generateFrameNames('atlas_car1', {
+        prefix: 'car-1-left.',
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'car-1-right',
+      frames: anims.generateFrameNames('atlas_car1', {
+        prefix: 'car-1-right.',
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'car-1-front',
+      frames: anims.generateFrameNames('atlas_car1', {
+        prefix: 'car-1-front.',
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'car-1-back',
+      frames: anims.generateFrameNames('atlas_car1', {
+        prefix: 'car-1-back.',
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
 
     const camera = this.cameras.main;
     camera.startFollow(this.player.sprite);
@@ -631,7 +757,7 @@ class CoveyGameScene extends Phaser.Scene {
       .text(
         16,
         16,
-        `Arrow keys to move\nCurrent town: ${this.video.townFriendlyName} (${this.video.coveyTownID})`,
+        `Arrow keys to move\nPress C to generate a car\nCurrent town: ${this.video.townFriendlyName} (${this.video.coveyTownID})`,
         {
           font: '18px monospace',
           color: '#000000',
