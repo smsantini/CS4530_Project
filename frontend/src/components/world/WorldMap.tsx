@@ -62,6 +62,8 @@ class CoveyGameScene extends Phaser.Scene {
 
   private infoTextBox?: Phaser.GameObjects.Text;
 
+  private racetrackLeaderboard?: Phaser.GameObjects.Text;
+
   private setNewConversation: (conv: ConversationArea) => void;
 
   private _onGameReadyListeners: Callback[] = [];
@@ -446,6 +448,7 @@ class CoveyGameScene extends Phaser.Scene {
               )
             ) {
               this.infoTextBox?.setVisible(false);
+              this.racetrackLeaderboard?.setVisible(false);
               this.currentConversationArea = undefined;
               this.lastLocation.conversationLabel = undefined;
             }
@@ -564,6 +567,18 @@ class CoveyGameScene extends Phaser.Scene {
     this.infoTextBox.setVisible(false);
     this.infoTextBox.x = this.game.scale.width / 2 - this.infoTextBox.width / 2;
 
+    this.racetrackLeaderboard = this.add
+      .text(
+        this.game.scale.width / 2,
+        this.game.scale.height / 2,
+        "Racetrack Leaderboard scores:\n",
+        { color: '#000000', backgroundColor: '#FFFFFF' },
+      )
+      .setScrollFactor(0)
+      .setDepth(30);
+    this.racetrackLeaderboard.setVisible(false);
+    this.racetrackLeaderboard.x = this.game.scale.width / 2 - this.racetrackLeaderboard.width / 2;
+
     const labels = map.filterObjects('Objects', obj => obj.name === 'label');
     labels.forEach(label => {
       if (label.x && label.y) {
@@ -647,6 +662,16 @@ class CoveyGameScene extends Phaser.Scene {
         } else {
           throw new Error(`Unable to find target object ${target}`);
         }
+        // start race
+        const shouldStartRace = transporter.getData('startRace') as boolean;
+        if (shouldStartRace) {
+          console.log('start the race');
+        }
+        // finish race
+        const shouldFinishRace = transporter.getData('finishRace') as boolean;
+        if (shouldFinishRace) {
+          console.log('finish the race')
+        }
       }
     });
     this.physics.add.overlap(
@@ -656,6 +681,12 @@ class CoveyGameScene extends Phaser.Scene {
         const conversationLabel = conversationSprite.name;
         const conv = this.conversationAreas.find(area => area.label === conversationLabel);
         this.currentConversationArea = conv;
+        // racetrack leaderboard
+        if (conv?.conversationArea?.label === 'Racetrack Leaderboard') {
+          this.racetrackLeaderboard?.setVisible(true);
+          return;
+        }
+        // regular conversation area logic
         if (conv?.conversationArea) {
           this.infoTextBox?.setVisible(false);
         } else {

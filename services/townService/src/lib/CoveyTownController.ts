@@ -9,6 +9,18 @@ import TwilioVideo from './TwilioVideo';
 
 const friendlyNanoID = customAlphabet('1234567890ABCDEF', 8);
 
+const RACETRACK_SERVER_CONVERSATION_AREA: ServerConversationArea = {
+  label: 'Racetrack Leaderboard',
+  topic: 'View and discuss race times!',
+  occupantsByID: [],
+  boundingBox: {
+    x: 4418.84,
+    y: 1434.41,
+    width: 190.01,
+    height: 231.12,
+  },
+};
+
 /**
  * The CoveyTownController implements the logic for each town: managing the various events that
  * can occur (e.g. joining a town, moving, leaving a town)
@@ -67,7 +79,7 @@ export default class CoveyTownController {
   private _listeners: CoveyTownListener[] = [];
 
   /** The list of currently active ConversationAreas in this town */
-  private _conversationAreas: ServerConversationArea[] = [];
+  private _conversationAreas: ServerConversationArea[] = [RACETRACK_SERVER_CONVERSATION_AREA];
 
   private readonly _coveyTownID: string;
 
@@ -167,7 +179,7 @@ export default class CoveyTownController {
    */
   removePlayerFromConversationArea(player: Player, conversation: ServerConversationArea) : void {
     conversation.occupantsByID.splice(conversation.occupantsByID.findIndex(p=>p === player.id), 1);
-    if (conversation.occupantsByID.length === 0) {
+    if (conversation.occupantsByID.length === 0 && conversation.label !== RACETRACK_SERVER_CONVERSATION_AREA.label) {
       this._conversationAreas.splice(this._conversationAreas.findIndex(conv => conv === conversation), 1);
       this._listeners.forEach(listener => listener.onConversationAreaDestroyed(conversation));
     } else {
