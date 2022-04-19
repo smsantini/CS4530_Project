@@ -62,6 +62,10 @@ class CoveyGameScene extends Phaser.Scene {
 
   private infoTextBox?: Phaser.GameObjects.Text;
 
+  private racetrackStartTime = Date.now();
+
+  private racetrackInfoBox?: Phaser.GameObjects.Text;
+
   private racetrackLeaderboard?: Phaser.GameObjects.Text;
 
   private setNewConversation: (conv: ConversationArea) => void;
@@ -412,6 +416,20 @@ class CoveyGameScene extends Phaser.Scene {
         
       
 
+        if (this.racetrackInfoBox?.visible) {
+          const time = new Date(Date.now() - this.racetrackStartTime);
+          let minutes = time.getMinutes().toString();
+          if (minutes.length < 2) {
+            minutes = `0${minutes}`;
+          }
+          let seconds = time.getSeconds().toString();
+          if (seconds.length < 2) {
+            seconds = `0${seconds}`;
+          }
+          const formatted = `${minutes}:${seconds}:${time.getMilliseconds()}`;
+          this.racetrackInfoBox.setText(`Race around the track\nto get the best time!\nTimer: ${formatted}`);
+        }
+
         // Normalize and scale the velocity so that player can't move faster along a diagonal
         this.player.sprite.body.velocity.normalize().scale(speed);
 
@@ -665,11 +683,14 @@ class CoveyGameScene extends Phaser.Scene {
         // start race
         const shouldStartRace = transporter.getData('startRace') as boolean;
         if (shouldStartRace) {
+          this.racetrackStartTime = Date.now();
+          this.racetrackInfoBox?.setVisible(true);
           console.log('start the race');
         }
         // finish race
         const shouldFinishRace = transporter.getData('finishRace') as boolean;
         if (shouldFinishRace) {
+          this.racetrackInfoBox?.setVisible(false);
           console.log('finish the race')
         }
       }
@@ -895,6 +916,26 @@ class CoveyGameScene extends Phaser.Scene {
       )
       .setScrollFactor(0)
       .setDepth(30);
+
+    this.racetrackInfoBox = this.add
+      .text(
+        744,
+        16,
+        `Race around the track\nto get the best time!\nTimer: ${this.racetrackStartTime}`,
+        {
+          font: '18px monospace',
+          color: '#000000',
+          padding: {
+            x: 20,
+            y: 10,
+          },
+          backgroundColor: '#ffffff',
+        },
+      )
+      .setScrollFactor(0)
+      .setDepth(30);
+    this.racetrackInfoBox.setVisible(false);
+
 
     this.ready = true;
     if (this.players.length) {
