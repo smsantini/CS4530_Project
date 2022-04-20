@@ -1,4 +1,4 @@
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, useToast } from '@chakra-ui/react';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import assert from 'assert';
 import React, {
@@ -34,7 +34,9 @@ import NearbyPlayersContext from './contexts/NearbyPlayersContext';
 import PlayerMovementContext, { PlayerMovementCallback } from './contexts/PlayerMovementContext';
 import PlayersInTownContext from './contexts/PlayersInTownContext';
 import VideoContext from './contexts/VideoContext';
+import RacetrackLeaderboardContext from './contexts/RacetrackLeaderboardContext';
 import { CoveyAppState } from './CoveyTypes';
+import RacetrackLeaderboard, { RaceResult } from './classes/Racetrack';
 
 export const MOVEMENT_UPDATE_DELAY_MS = 0;
 export const CALCULATE_NEARBY_PLAYERS_MOVING_DELAY_MS = 300;
@@ -52,6 +54,8 @@ type CoveyAppUpdate =
         emitMovement: (location: UserLocation) => void;
         emitCarEntered: () => void;
         emitCarExited: () => void;
+        emitRaceStarted: () => void;
+        emitRaceFinished: () => void;
       };
     }
   | { action: 'disconnect' };
@@ -68,6 +72,8 @@ function defaultAppState(): CoveyAppState {
     emitMovement: () => {},
     emitCarEntered: () => {},
     emitCarExited: () => {},
+    emitRaceStarted: () => {},
+    emitRaceFinished: () => {},
     apiClient: new TownsServiceClient(),
   };
 }
@@ -83,6 +89,8 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
     emitMovement: state.emitMovement,
     emitCarEntered: state.emitCarEntered,
     emitCarExited: state.emitCarExited,
+    emitRaceStarted: state.emitRaceStarted,
+    emitRaceFinished: state.emitRaceFinished,
     apiClient: state.apiClient,
   };
 
@@ -97,6 +105,8 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
       nextState.emitMovement = update.data.emitMovement;
       nextState.emitCarEntered = update.data.emitCarEntered;
       nextState.emitCarExited = update.data.emitCarExited;
+      nextState.emitRaceStarted = update.data.emitRaceStarted;
+      nextState.emitRaceFinished = update.data.emitRaceFinished;
       nextState.socket = update.data.socket;
       break;
     case 'disconnect':
@@ -132,12 +142,14 @@ function samePlayers(a1: Player[], a2: Player[]) {
 }
 
 function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefined>> }) {
+  const toast = useToast();
   const [appState, dispatchAppUpdate] = useReducer(appStateReducer, defaultAppState());
   const [playerMovementCallbacks] = useState<PlayerMovementCallback[]>([]);
   const [playersInTown, setPlayersInTown] = useState<Player[]>([]);
   const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
   // const [currentLocation, setCurrentLocation] = useState<UserLocation>({moving: false, rotation: 'front', x: 0, y: 0});
   const [conversationAreas, setConversationAreas] = useState<ConversationArea[]>([]);
+  const [racetrackLeaderboard] = useState(new RacetrackLeaderboard([]));
 
   const setupGameController = useCallback(
     async (initData: TownJoinResponse) => {
@@ -163,9 +175,12 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         ConversationArea.fromServerConversationArea(sa),
       );
       let localNearbyPlayers: Player[] = [];
+      const { raceTrack } = initData;
       setPlayersInTown(localPlayers);
       setConversationAreas(localConversationAreas);
       setNearbyPlayers(localNearbyPlayers);
+      const scoreboard = raceTrack.scoreBoard.map((rr: RaceResult): RaceResult => ({ userName: rr.userName, time: new Date(rr.time) }));
+      racetrackLeaderboard.update(scoreboard);
 
       const recalculateNearbyPlayers = () => {
         const newNearbyPlayers = calculateNearbyPlayers(localPlayers, currentLocation);
@@ -194,6 +209,12 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       };
       const emitCarExited = () => {
         socket.emit('carExited');
+      }
+      const emitRaceStarted = () => {
+        socket.emit('raceStarted', new Date());
+      }
+      const emitRaceFinished = () => {
+        socket.emit('raceFinished', new Date());
       }
       socket.on('newPlayer', (player: ServerPlayer) => {
         localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
@@ -270,6 +291,18 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         }
         setPlayersInTown(localPlayers);
       });
+      socket.on('raceFinished', (player: ServerPlayer, playerRaceTime: string, newScoreboard: RaceResult[]) => {
+        newScoreboard = newScoreboard.map((rr: RaceResult): RaceResult => ({ userName: rr.userName, time: new Date(rr.time) }));
+        if (player._id === gamePlayerID) {
+          const finishTime = new Date(playerRaceTime);
+          toast({
+            title: 'Race finished!',
+            description: `You finished with a time of ${finishTime.getMinutes()}:${finishTime.getSeconds()}:${finishTime.getMilliseconds()}`,
+            status: 'info',
+          });
+        }
+        racetrackLeaderboard.update(newScoreboard);
+      });
 
       dispatchAppUpdate({
         action: 'doConnect',
@@ -283,19 +316,15 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           emitMovement,
           emitCarEntered,
           emitCarExited,
+          emitRaceStarted,
+          emitRaceFinished,
           socket,
         },
       });
 
       return true;
     },
-    [
-      dispatchAppUpdate,
-      playerMovementCallbacks,
-      setPlayersInTown,
-      setNearbyPlayers,
-      setConversationAreas,
-    ],
+    [dispatchAppUpdate, playerMovementCallbacks, setPlayersInTown, setNearbyPlayers, setConversationAreas, racetrackLeaderboard],
   );
   const videoInstance = Video.instance();
 
@@ -331,7 +360,9 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             <PlayersInTownContext.Provider value={playersInTown}>
               <NearbyPlayersContext.Provider value={nearbyPlayers}>
                 <ConversationAreasContext.Provider value={conversationAreas}>
-                  {page}
+                  <RacetrackLeaderboardContext.Provider value={racetrackLeaderboard}>
+                    {page}
+                  </RacetrackLeaderboardContext.Provider>
                 </ConversationAreasContext.Provider>
               </NearbyPlayersContext.Provider>
             </PlayersInTownContext.Provider>

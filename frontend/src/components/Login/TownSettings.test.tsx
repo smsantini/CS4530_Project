@@ -46,6 +46,8 @@ function wrappedTownSettings() {
     },
     emitCarEntered: () => {},
     emitCarExited: () => {},
+    emitRaceStarted: () => {},
+    emitRaceFinished: () => {},
     apiClient: new TownsServiceClient(),
   }}>
     <TownSettings/></CoveyAppContext.Provider></ChakraProvider>;

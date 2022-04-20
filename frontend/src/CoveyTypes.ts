@@ -22,6 +22,8 @@ export type CoveyAppState = {
   emitMovement: (location: UserLocation) => void,
   emitCarEntered: () => void;
   emitCarExited: () => void;
+  emitRaceStarted: () => void;
+  emitRaceFinished: () => void;
   socket: Socket | null,
   apiClient: TownsServiceClient
 };

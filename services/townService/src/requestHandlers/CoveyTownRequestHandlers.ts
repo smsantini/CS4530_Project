@@ -243,8 +243,8 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onRaceStarted(player: Player) {
       socket.emit('raceStarted', player);
     },
-    onRaceFinished(player: Player, scoreBoard: RaceResult[]) {
-      socket.emit('raceFinished', player, scoreBoard);
+    onRaceFinished(player: Player, playerFinishTime, scoreBoard: RaceResult[]) {
+      socket.emit('raceFinished', player, playerFinishTime, scoreBoard);
     },
   };
 }
@@ -305,13 +305,13 @@ export function townSubscriptionHandler(socket: Socket): void {
 
   // Register an event listener for the client socket: if the client starts a race,
   // inform the CoveyTownController
-  socket.on('raceStarted', (startTime: Date) => {
-    townController.playerStartRace(s.player, startTime);
+  socket.on('raceStarted', (startTime: string) => {
+    townController.playerStartRace(s.player, new Date(startTime));
   });
 
   // Register an event listener for the client socket: if the client finishes a race,
   // inform the CoveyTownController with the race time
-  socket.on('raceFinished', (finishTime: Date) => {
-    townController.playerFinishRace(s.player, finishTime);
+  socket.on('raceFinished', (finishTime: string) => {
+    townController.playerFinishRace(s.player, new Date(finishTime));
   });
 }

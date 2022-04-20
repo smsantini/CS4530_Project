@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import BoundingBox from '../../classes/BoundingBox';
 import { CarType } from '../../classes/Car/Types';
 import ConversationArea from '../../classes/ConversationArea';
+import RacetrackLeaderboard from '../../classes/Racetrack';
 import Player, { ServerPlayer, UserLocation } from '../../classes/Player';
 import Video from '../../classes/Video/Video';
 import useConversationAreas from '../../hooks/useConversationAreas';
@@ -11,6 +12,7 @@ import usePlayerMovement from '../../hooks/usePlayerMovement';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import { Callback } from '../VideoCall/VideoFrontend/types';
 import NewConversationModal from './NewCoversationModal';
+import useRacetrackLeaderboard from '../../hooks/useRacetrackLeaderboard';
 
 // Original inspiration and code from:
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
@@ -35,6 +37,8 @@ class CoveyGameScene extends Phaser.Scene {
 
   private conversationAreas: ConversationGameObjects[] = [];
 
+  private racetrackLeaderboard: RacetrackLeaderboard;
+
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys[] = [];
 
   /*
@@ -58,15 +62,20 @@ class CoveyGameScene extends Phaser.Scene {
 
   private emitCarExited: () => void;
 
+  private emitRaceStarted: () => void;
+
+  private emitRaceFinished: () => void;
+
   private currentConversationArea?: ConversationGameObjects;
 
   private infoTextBox?: Phaser.GameObjects.Text;
+
+  private racetrackLeaderboardTextBox?: Phaser.GameObjects.Text;
 
   private racetrackStartTime = Date.now();
 
   private racetrackInfoBox?: Phaser.GameObjects.Text;
 
-  private racetrackLeaderboard?: Phaser.GameObjects.Text;
 
   private setNewConversation: (conv: ConversationArea) => void;
 
@@ -77,16 +86,22 @@ class CoveyGameScene extends Phaser.Scene {
     emitMovement: (loc: UserLocation) => void,
     emitCarEntered: () => void,
     emitCarExited: () => void,
+    emitRaceStarted: () => void,
+    emitRaceFinished: () => void,
     setNewConversation: (conv: ConversationArea) => void,
     myPlayerID: string,
+    racetrackLeaderboard: RacetrackLeaderboard
   ) {
     super('PlayGame');
     this.video = video;
     this.emitMovement = emitMovement;
     this.emitCarEntered = emitCarEntered;
     this.emitCarExited = emitCarExited;
+    this.emitRaceStarted = emitRaceStarted;
+    this.emitRaceFinished = emitRaceFinished;
     this.myPlayerID = myPlayerID;
     this.setNewConversation = setNewConversation;
+    this.racetrackLeaderboard = racetrackLeaderboard;
   }
 
   preload() {
@@ -466,7 +481,7 @@ class CoveyGameScene extends Phaser.Scene {
               )
             ) {
               this.infoTextBox?.setVisible(false);
-              this.racetrackLeaderboard?.setVisible(false);
+              this.racetrackLeaderboardTextBox?.setVisible(false);
               this.currentConversationArea = undefined;
               this.lastLocation.conversationLabel = undefined;
             }
@@ -585,17 +600,17 @@ class CoveyGameScene extends Phaser.Scene {
     this.infoTextBox.setVisible(false);
     this.infoTextBox.x = this.game.scale.width / 2 - this.infoTextBox.width / 2;
 
-    this.racetrackLeaderboard = this.add
+    this.racetrackLeaderboardTextBox = this.add
       .text(
         this.game.scale.width / 2,
         this.game.scale.height / 2,
-        "Racetrack Leaderboard scores:\n",
+        this.racetrackLeaderboard.toString(),
         { color: '#000000', backgroundColor: '#FFFFFF' },
       )
       .setScrollFactor(0)
       .setDepth(30);
-    this.racetrackLeaderboard.setVisible(false);
-    this.racetrackLeaderboard.x = this.game.scale.width / 2 - this.racetrackLeaderboard.width / 2;
+    this.racetrackLeaderboardTextBox.setVisible(false);
+    this.racetrackLeaderboardTextBox.x = this.game.scale.width / 2 - this.racetrackLeaderboardTextBox.width / 2;
 
     const labels = map.filterObjects('Objects', obj => obj.name === 'label');
     labels.forEach(label => {
@@ -685,13 +700,13 @@ class CoveyGameScene extends Phaser.Scene {
         if (shouldStartRace) {
           this.racetrackStartTime = Date.now();
           this.racetrackInfoBox?.setVisible(true);
-          console.log('start the race');
+          this.emitRaceStarted();
         }
         // finish race
         const shouldFinishRace = transporter.getData('finishRace') as boolean;
         if (shouldFinishRace) {
           this.racetrackInfoBox?.setVisible(false);
-          console.log('finish the race')
+          this.emitRaceFinished();
         }
       }
     });
@@ -704,7 +719,8 @@ class CoveyGameScene extends Phaser.Scene {
         this.currentConversationArea = conv;
         // racetrack leaderboard
         if (conv?.conversationArea?.label === 'Racetrack Leaderboard') {
-          this.racetrackLeaderboard?.setVisible(true);
+          this.racetrackLeaderboardTextBox?.setText(this.racetrackLeaderboard.toString());
+          this.racetrackLeaderboardTextBox?.setVisible(true);
           return;
         }
         // regular conversation area logic
@@ -975,12 +991,13 @@ class CoveyGameScene extends Phaser.Scene {
 
 export default function WorldMap(): JSX.Element {
   const video = Video.instance();
-  const { emitMovement, emitCarEntered, emitCarExited, myPlayerID } = useCoveyAppState();
+  const { emitMovement, emitCarEntered, emitCarExited, emitRaceStarted, emitRaceFinished, myPlayerID } = useCoveyAppState();
   const conversationAreas = useConversationAreas();
   const [gameScene, setGameScene] = useState<CoveyGameScene>();
   const [newConversation, setNewConversation] = useState<ConversationArea>();
   const playerMovementCallbacks = usePlayerMovement();
   const players = usePlayersInTown();
+  const leaderboard = useRacetrackLeaderboard();
 
   useEffect(() => {
     const config = {
@@ -1003,7 +1020,7 @@ export default function WorldMap(): JSX.Element {
 
     const game = new Phaser.Game(config);
     if (video) {
-      const newGameScene = new CoveyGameScene(video, emitMovement, emitCarEntered, emitCarExited, setNewConversation, myPlayerID);
+      const newGameScene = new CoveyGameScene(video, emitMovement, emitCarEntered, emitCarExited, emitRaceStarted, emitRaceFinished, setNewConversation, myPlayerID, leaderboard);
       setGameScene(newGameScene);
       game.scene.add('coveyBoard', newGameScene, true);
       video.pauseGame = () => {
@@ -1016,7 +1033,7 @@ export default function WorldMap(): JSX.Element {
     return () => {
       game.destroy(true);
     };
-  }, [video, emitMovement, emitCarEntered, emitCarExited, setNewConversation, myPlayerID]);
+  }, [video, emitMovement, emitCarEntered, emitCarExited, emitRaceStarted, emitRaceFinished, setNewConversation, myPlayerID, leaderboard]);
 
   useEffect(() => {
     const movementDispatcher = (player: ServerPlayer) => {

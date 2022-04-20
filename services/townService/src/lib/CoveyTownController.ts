@@ -349,12 +349,13 @@ export default class CoveyTownController {
       this.raceTrack.ongoingRaces.findIndex(r => r.id === player.id),
       1,
     );
-    if (startTime) {
-      const raceTime = new Date(finishTime.getTime() - startTime.getTime());
-      scoreBoard.push({ userName: player.userName, time: raceTime });
-      scoreBoard.sort((s1, s2) => s2.time.getTime() - s1.time.getTime());
-      this.raceTrack.scoreBoard = scoreBoard.slice(0, 10);
+    if (!startTime) {
+      return;
     }
-    this._listeners.forEach(l => l.onRaceFinished(player, this.raceTrack.scoreBoard));
+    const raceTime = new Date(finishTime.getTime() - startTime.getTime());
+    scoreBoard.push({ userName: player.userName, time: raceTime });
+    scoreBoard.sort((s1, s2) => s1.time.getTime() - s2.time.getTime());
+    this.raceTrack.scoreBoard = scoreBoard.slice(0, 10);
+    this._listeners.forEach(l => l.onRaceFinished(player, raceTime, this.raceTrack.scoreBoard));
   }
 }

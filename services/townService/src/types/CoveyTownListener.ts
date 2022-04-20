@@ -69,5 +69,5 @@ export default interface CoveyTownListener {
    * Called when a player finishes a race
    * @param player the player that finishes a race
    */
-  onRaceFinished(player: Player, scoreBoard: RaceResult[]): void;
+  onRaceFinished(player: Player, raceFinishTime: Date, scoreBoard: RaceResult[]): void;
 }

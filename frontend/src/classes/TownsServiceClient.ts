@@ -3,6 +3,7 @@ import assert from 'assert';
 import { ServerPlayer } from './Player';
 import { ServerConversationArea } from './ConversationArea';
 import { CarType } from './Car/Types';
+import { Racetrack } from './Racetrack';
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -37,6 +38,8 @@ export interface TownJoinResponse {
   isPubliclyListed: boolean;
   /** Names and occupants of any existing ConversationAreas */
   conversationAreas: ServerConversationArea[];
+  /**  */
+  raceTrack: Racetrack
 }
 
 /**
