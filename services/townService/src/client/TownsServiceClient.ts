@@ -16,11 +16,27 @@ export type BoundingBox = {
   width: number,
   height: number
 };
+
+export type RaceResult = {
+  userName: string,
+  time: Date
+};
+
+export type OngoingRace = {
+  id: string,
+  startTime: Date
+};
+
 export type ServerConversationArea = {
   label: string;
   topic: string;
   occupantsByID: string[];
   boundingBox: BoundingBox;
+};
+
+export type RaceTrack = {
+  scoreBoard: RaceResult[];
+  ongoingRaces: OngoingRace[];
 };
 
 /**
@@ -56,6 +72,8 @@ export interface TownJoinResponse {
   isPubliclyListed: boolean;
   /** Conversation areas */
   conversationAreas: ServerConversationArea[];
+  /** Race track for car racing */
+  raceTrack: RaceTrack;
 }
 
 /**
@@ -180,5 +198,4 @@ export default class TownsServiceClient {
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/conversationAreas`, requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
-
 }

@@ -1,4 +1,4 @@
-import { ServerConversationArea } from '../client/TownsServiceClient';
+import { RaceResult, ServerConversationArea } from '../client/TownsServiceClient';
 import { ChatMessage } from '../CoveyTypes';
 import Player from './Player';
 
@@ -58,4 +58,16 @@ export default interface CoveyTownListener {
    * @param player the player that exits a car
    */
   onPlayerExitedCar(player: Player): void;
+
+  /**
+   * Called when a player starts a race
+   * @param player the player that starts a race
+   */
+  onRaceStarted(player: Player): void;
+
+  /**
+   * Called when a player finishes a race
+   * @param player the player that finishes a race
+   */
+  onRaceFinished(player: Player, scoreBoard: RaceResult[]): void;
 }

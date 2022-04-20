@@ -4,7 +4,7 @@ import Player from '../types/Player';
 import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
-import { ConversationAreaCreateRequest, ServerConversationArea } from '../client/TownsServiceClient';
+import { ConversationAreaCreateRequest, ServerConversationArea, RaceTrack, RaceResult } from '../client/TownsServiceClient';
 import { CarType } from '../types/car/Types';
 
 /**
@@ -40,6 +40,8 @@ export interface TownJoinResponse {
   isPubliclyListed: boolean;
   /** Conversation areas currently active in this town */
   conversationAreas: ServerConversationArea[];
+  /** The currently active raceTrack in this town */
+  raceTrack: RaceTrack;
 }
 
 /**
@@ -125,6 +127,7 @@ export async function townJoinHandler(requestData: TownJoinRequest): Promise<Res
       friendlyName: coveyTownController.friendlyName,
       isPubliclyListed: coveyTownController.isPubliclyListed,
       conversationAreas: coveyTownController.conversationAreas,
+      raceTrack: coveyTownController.raceTrack,
     },
   };
 }
@@ -237,6 +240,12 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onPlayerExitedCar(player: Player){
       socket.emit('carExited', player);
     },
+    onRaceStarted(player: Player) {
+      socket.emit('raceStarted', player);
+    },
+    onRaceFinished(player: Player, scoreBoard: RaceResult[]) {
+      socket.emit('raceFinished', player, scoreBoard);
+    },
   };
 }
 
@@ -288,9 +297,21 @@ export function townSubscriptionHandler(socket: Socket): void {
     townController.playerEnterCar(s.player);
   });
 
-  // Register an event listener for the client socket: if the client enters a car,
+  // Register an event listener for the client socket: if the client exits a car,
   // inform the CoveyTownController
   socket.on('carExited', () => {
     townController.playerExitCar(s.player);
+  });
+
+  // Register an event listener for the client socket: if the client starts a race,
+  // inform the CoveyTownController
+  socket.on('raceStarted', (startTime: Date) => {
+    townController.playerStartRace(s.player, startTime);
+  });
+
+  // Register an event listener for the client socket: if the client finishes a race,
+  // inform the CoveyTownController with the race time
+  socket.on('raceFinished', (finishTime: Date) => {
+    townController.playerFinishRace(s.player, finishTime);
   });
 }

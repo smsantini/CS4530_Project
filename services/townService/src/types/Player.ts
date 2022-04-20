@@ -4,6 +4,7 @@ import { UserLocation } from '../CoveyTypes';
 import BlueCar from './car/BlueCar';
 import BaseCar from './car/Car';
 import GreenCar from './car/GreenCar';
+import RaceCar from './car/RaceCar';
 import RedCar from './car/RedCar';
 import { CarType } from './car/Types';
 
@@ -23,6 +24,10 @@ export default class Player {
   /** The current ConversationArea that the player is in, or undefined if they are not located within one */
   private _activeConversationArea?: ServerConversationArea;
 
+  private _isRacing: boolean;
+
+  private _raceCar: BaseCar;
+
   private _car: BaseCar;
 
   constructor(userName: string, carType?: CarType) {
@@ -34,6 +39,9 @@ export default class Player {
     };
     this._userName = userName;
     this._id = nanoid();
+    this._isRacing = false;
+    this._raceCar = new RaceCar();
+
     switch (carType) {
       case 'REGULAR_BLUE':
         this._car = new BlueCar();
@@ -57,15 +65,18 @@ export default class Player {
   get activeConversationArea(): ServerConversationArea | undefined {
     return this._activeConversationArea;
   }
-  
+
   set activeConversationArea(conversationArea: ServerConversationArea | undefined) {
     this._activeConversationArea = conversationArea;
   }
 
   get car(): BaseCar {
+    if (this._isRacing) {
+      return this._raceCar;
+    }
     return this._car;
   }
-  
+
   /* We don't need this setter at this moment */
   // set car(car: BaseCar) {
   //   this._car = car;
@@ -79,16 +90,23 @@ export default class Player {
     this.car.active = status;
   }
 
+  get isRacing(): boolean {
+    return this._isRacing;
+  }
+
+  set isRacing(status: boolean) {
+    this._isRacing = status;
+  }
 
   /**
    * Checks to see if a player's location is within the specified conversation area
-   * 
+   *
    * This method is resilient to floating point errors that could arise if any of the coordinates of
    * `this.location` are dramatically smaller than those of the conversation area's bounding box.
-   * @param conversation 
-   * @returns 
+   * @param conversation
+   * @returns
    */
-  isWithin(conversation: ServerConversationArea) : boolean {
+  isWithin(conversation: ServerConversationArea): boolean {
     return (
       this.location.x > conversation.boundingBox.x - conversation.boundingBox.width / 2 &&
       this.location.x < conversation.boundingBox.x + conversation.boundingBox.width / 2 &&
@@ -96,5 +114,4 @@ export default class Player {
       this.location.y < conversation.boundingBox.y + conversation.boundingBox.height / 2
     );
   }
-
 }
