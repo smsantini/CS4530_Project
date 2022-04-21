@@ -374,7 +374,7 @@ describe('CoveyTownController', () => {
         const player = new Player(nanoid(), 'REGULAR_BLUE');
         testingTown.playerStartRace(player, new Date(50000));
         expect(player.isRacing).toBeTruthy();
-        expect(player.isDriving).toBeTruthy();
+        expect(player.isDriving).toBeFalsy();
         expect(player.car.type).toBe('RACE');
         expect(player.car.speed).toBe(700);
         expect(testingTown.raceTrack.ongoingRaces[0]).toStrictEqual({ id: player.id, startTime: new Date(50000) });
