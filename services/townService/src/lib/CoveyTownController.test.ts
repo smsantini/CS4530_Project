@@ -243,10 +243,10 @@ describe('CoveyTownController', () => {
       const result = testingTown.addConversationArea(newConversationArea);
       expect(result).toBe(true);
       const areas = testingTown.conversationAreas;
-      expect(areas.length).toEqual(1);
-      expect(areas[0].label).toEqual(newConversationArea.label);
-      expect(areas[0].topic).toEqual(newConversationArea.topic);
-      expect(areas[0].boundingBox).toEqual(newConversationArea.boundingBox);
+      expect(areas.length).toEqual(2);
+      expect(areas[1].label).toEqual(newConversationArea.label);
+      expect(areas[1].topic).toEqual(newConversationArea.topic);
+      expect(areas[1].boundingBox).toEqual(newConversationArea.boundingBox);
     });
   });
   describe('updatePlayerLocation', () =>{
@@ -269,8 +269,8 @@ describe('CoveyTownController', () => {
       expect(player.activeConversationArea?.boundingBox).toEqual(newConversationArea.boundingBox);
 
       const areas = testingTown.conversationAreas;
-      expect(areas[0].occupantsByID.length).toBe(1);
-      expect(areas[0].occupantsByID[0]).toBe(player.id);
+      expect(areas[1].occupantsByID.length).toBe(1);
+      expect(areas[1].occupantsByID[0]).toBe(player.id);
 
     }); 
     it('should emit an onConversationUpdated event when a conversation area gets a new occupant', async () =>{
@@ -346,6 +346,75 @@ describe('CoveyTownController', () => {
         expect(playerSession2.player.car.type).toBe('REGULAR_BLUE');
         const playerSession3 = await testingTown.addPlayer(player3);
         expect(playerSession3.player.car.type).toBe('REGULAR_RED');
+      });
+    });
+  });
+  describe('racetrack', () =>{
+    let testingTown: CoveyTownController;
+    const mockListeners = [mock<CoveyTownListener>(),
+      mock<CoveyTownListener>(),
+      mock<CoveyTownListener>()];
+
+    beforeEach(() => {
+      const townName = `${nanoid()}`;
+      testingTown = new CoveyTownController(townName, false);
+      mockListeners.forEach(mockReset);
+    });
+
+    it('creates the racetrack conversation area when the town is created', async () => {
+      const racetrackConversationArea = testingTown.conversationAreas[0];
+      expect(racetrackConversationArea.label).toBe('Racetrack Leaderboard');
+      expect(racetrackConversationArea.topic).toBe('View and discuss race times!');
+      expect(racetrackConversationArea.occupantsByID).toHaveLength(0);
+    });
+
+    describe('car race', () => {
+      it('updates the racetrack and player correctly when a player starts a race', async () => {
+        mockListeners.forEach(listener => testingTown.addTownListener(listener));
+        const player = new Player(nanoid(), 'REGULAR_BLUE');
+        testingTown.playerStartRace(player, new Date(50000));
+        expect(player.isRacing).toBeTruthy();
+        expect(player.isDriving).toBeTruthy();
+        expect(player.car.type).toBe('RACE');
+        expect(player.car.speed).toBe(700);
+        expect(testingTown.raceTrack.ongoingRaces[0]).toStrictEqual({ id: player.id, startTime: new Date(50000) });
+        mockListeners.forEach(l => expect(l.onRaceStarted).toBeCalled());
+      });
+
+      it('updates the racetrack and player correctly when a player finishes a race', async () => {
+        mockListeners.forEach(listener => testingTown.addTownListener(listener));
+        const player = new Player(nanoid(), 'REGULAR_BLUE');
+        await testingTown.playerStartRace(player, new Date(50000));
+        await testingTown.playerFinishRace(player, new Date(60000));
+        expect(player.isRacing).toBeFalsy();
+        expect(player.isDriving).toBeFalsy();
+        expect(player.car.type).toBe('REGULAR_BLUE');
+        expect(testingTown.raceTrack.ongoingRaces).toHaveLength(0);
+        expect(testingTown.raceTrack.scoreBoard[0]).toStrictEqual({ userName: player.userName, time: new Date(10000) });
+        mockListeners.forEach(l => expect(l.onRaceFinished).toBeCalled());
+      });
+
+      it('sorts the scoreboard correctly', async () => {
+        const player1 = new Player(nanoid(), 'REGULAR_BLUE');
+        await testingTown.playerStartRace(player1, new Date(50000));
+        const player2 = new Player(nanoid(), 'REGULAR_BLUE');
+        await testingTown.playerStartRace(player2, new Date(50000));
+        const player3 = new Player(nanoid(), 'REGULAR_BLUE');
+        await testingTown.playerStartRace(player3, new Date(50000));
+        await testingTown.playerFinishRace(player2, new Date(57000));
+        expect(testingTown.raceTrack.scoreBoard[0]).toStrictEqual({ userName: player2.userName, time: new Date(7000) });
+        await testingTown.playerFinishRace(player1, new Date(60000));
+        await testingTown.playerFinishRace(player3, new Date(55000));
+        expect(testingTown.raceTrack.ongoingRaces).toHaveLength(0);
+        expect(testingTown.raceTrack.scoreBoard[0]).toStrictEqual({ userName: player3.userName, time: new Date(5000) });
+        expect(testingTown.raceTrack.scoreBoard[1]).toStrictEqual({ userName: player2.userName, time: new Date(7000) });
+        expect(testingTown.raceTrack.scoreBoard[2]).toStrictEqual({ userName: player1.userName, time: new Date(10000) });
+      });
+
+      it('does not add race record to score board if no record of this player in ongoingRaces', async () => {
+        const player1 = new Player(nanoid(), 'REGULAR_BLUE');
+        await testingTown.playerFinishRace(player1, new Date(60000));
+        expect(testingTown.raceTrack.scoreBoard).toHaveLength(0);
       });
     });
   });

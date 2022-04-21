@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid';
 import CoveyTownsStore from './CoveyTownsStore';
 import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
-import { ServerConversationArea } from '../client/TownsServiceClient';
+import { RaceResult, ServerConversationArea } from '../client/TownsServiceClient';
 import { ChatMessage } from '../CoveyTypes';
 
 const mockCoveyListenerTownDestroyed = jest.fn();
@@ -34,6 +34,12 @@ function mockCoveyListener(): CoveyTownListener {
     },
     onPlayerExitedCar(player: Player) {
       mockCoveyListenerOtherFns(player);
+    },
+    onRaceStarted(player: Player) {
+      mockCoveyListenerOtherFns(player);
+    },
+    onRaceFinished(player: Player, raceFinishTime: Date, scoreBoard: RaceResult[]) {
+      mockCoveyListenerOtherFns(player, raceFinishTime, scoreBoard);
     },
   };
 }
