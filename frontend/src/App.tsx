@@ -291,6 +291,17 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         }
         setPlayersInTown(localPlayers);
       });
+      socket.on('raceStarted', (player: ServerPlayer) => {
+        const updatePlayer = localPlayers.find(p => p.id === player._id);
+        if (updatePlayer) {
+          updatePlayer.isDriving = false;
+          updatePlayer.isRacing = true;
+        } else {
+          // this generally should not be reached
+          localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
+        }
+        setPlayersInTown(localPlayers);
+      });
       socket.on('raceFinished', (player: ServerPlayer, playerRaceTime: string, newScoreboard: RaceResult[]) => {
         newScoreboard = newScoreboard.map((rr: RaceResult): RaceResult => ({ userName: rr.userName, time: new Date(rr.time) }));
         if (player._id === gamePlayerID) {
@@ -302,6 +313,14 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           });
         }
         racetrackLeaderboard.update(newScoreboard);
+        const updatePlayer = localPlayers.find(p => p.id === player._id);
+        if (updatePlayer) {
+          updatePlayer.isRacing = false;
+        } else {
+          // this generally should not be reached
+          localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
+        }
+        setPlayersInTown(localPlayers);
       });
 
       dispatchAppUpdate({

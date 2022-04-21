@@ -331,7 +331,7 @@ export default class CoveyTownController {
    */
   playerStartRace(player: Player, startTime: Date): void {
     player.isRacing = true;
-    this.playerEnterCar(player);
+    player.isDriving = false;
     this.raceTrack.ongoingRaces.push({ id: player.id, startTime });
     this._listeners.forEach(l => l.onRaceStarted(player));
   }
@@ -342,7 +342,6 @@ export default class CoveyTownController {
    */
   playerFinishRace(player: Player, finishTime: Date): void {
     player.isRacing = false;
-    this.playerExitCar(player);
     const { scoreBoard } = this.raceTrack;
     const startTime = this.raceTrack.ongoingRaces.find(r => r.id === player.id)?.startTime;
     this.raceTrack.ongoingRaces.splice(

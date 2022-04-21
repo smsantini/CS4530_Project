@@ -1,0 +1,100 @@
+{"frames": {
+
+	"race-car-left.000":
+	{
+		"rotated": false,
+		"trimmed": true,
+		"sourceSize": {
+			"w": 94,
+			"h": 50
+		},
+		"spriteSourceSize": {
+			"x": 0,
+			"y": 13,
+			"w": 94,
+			"h": 37
+		},
+		"frame": {
+			"x": 1,
+			"y": 1,
+			"w": 94,
+			"h": 37
+		}
+	},
+	"race-car-right.000": 
+	{
+		"rotated": false,
+		"trimmed": true,
+		"sourceSize": {
+			"w": 94,
+			"h": 50
+		},
+		"spriteSourceSize": {
+			"x": 0,
+			"y": 13,
+			"w": 94,
+			"h": 37
+		},
+		"frame": {
+			"x": 1,
+			"y": 40,
+			"w": 94,
+			"h": 37
+		}
+	},
+	"race-car-front.000":
+	{
+		"rotated": false,
+		"trimmed": true,
+		"sourceSize": {
+			"w": 60,
+			"h": 72
+		},
+		"spriteSourceSize": {
+			"x": 9,
+			"y": 33,
+			"w": 44,
+			"h": 39
+		},
+		"frame": {
+			"x": 1,
+			"y": 79,
+			"w": 44,
+			"h": 39
+		}
+	},
+	"race-car-back.000":
+	{
+		"rotated": false,
+		"trimmed": true,
+		"sourceSize": {
+			"w": 60,
+			"h": 72
+		},
+		"spriteSourceSize": {
+			"x": 9,
+			"y": 35,
+			"w": 44,
+			"h": 37
+		},
+		"frame": {
+			"x": 47,
+			"y": 79,
+			"w": 44,
+			"h": 37
+		}
+	}},
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"image": "atlas_raceCar.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 96,
+				"h": 119
+			},
+			"scale": 2,
+		"smartupdate": "$TexturePacker:SmartUpdate:2d27341d83342202d202870730b1f0f6:ac2d9d0f56313e82e6b989b4be6c5ed8:003461e5880710e8f4d98f0e96cf0945$"
+
+	}
+}

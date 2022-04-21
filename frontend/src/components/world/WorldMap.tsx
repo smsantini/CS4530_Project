@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import React, { useEffect, useMemo, useState } from 'react';
 import BoundingBox from '../../classes/BoundingBox';
-import { CarType } from '../../classes/Car/Types';
+import { CarType, RaceCarType } from '../../classes/Car/Types';
 import ConversationArea from '../../classes/ConversationArea';
 import RacetrackLeaderboard from '../../classes/Racetrack';
 import Player, { ServerPlayer, UserLocation } from '../../classes/Player';
@@ -122,6 +122,7 @@ class CoveyGameScene extends Phaser.Scene {
     this.load.atlas('atlas_car1', '/assets/atlas_car1/atlas_car1.png', '/assets/atlas_car1/atlas_car1.json');
     this.load.atlas('atlas_car2', '/assets/atlas_car2/atlas_car2.png', '/assets/atlas_car2/atlas_car2.json');
     this.load.atlas('atlas_car3', '/assets/atlas_car3/atlas_car3.png', '/assets/atlas_car3/atlas_car3.json');
+    this.load.atlas('atlas_raceCar', '/assets/atlas_raceCar/atlas_raceCar.png', '/assets/atlas_raceCar/atlas_raceCar.json');
   }
 
   /**
@@ -235,16 +236,16 @@ class CoveyGameScene extends Phaser.Scene {
       sprite.setY(player.location.y);
       myPlayer.label?.setX(sprite.body.position.x);
       myPlayer.label?.setY(sprite.body.position.y - 20);
-      const carType = CoveyGameScene.getCarPrefix(myPlayer.car.type);
+      const carType = CoveyGameScene.getCarPrefix(myPlayer.carType);
       if (player.location.moving && carType) {
-        if (player.isDriving) {
+        if (player.isDriving || myPlayer.isRacing) {
           sprite.anims.play(`${carType[0]}-${player.location.rotation}`, true);
         } else {
           sprite.anims.play(`misa-${player.location.rotation}-walk`, true);
         }
       } else if (carType) {
         sprite.anims.stop();
-        if (player.isDriving) {
+        if (player.isDriving || myPlayer.isRacing) {
           sprite.setTexture(carType[1], `${carType[0]}-${player.location.rotation}.000`);
         } else {
           sprite.setTexture('atlas_misa', `misa-${player.location.rotation}`);
@@ -253,7 +254,7 @@ class CoveyGameScene extends Phaser.Scene {
     }
   }
 
-  static getCarPrefix(type : CarType) {
+  static getCarPrefix(type : CarType | RaceCarType) {
     switch (type) {
       case 'REGULAR_BLUE':
         return ['car-1', 'atlas_car1'];
@@ -261,6 +262,8 @@ class CoveyGameScene extends Phaser.Scene {
         return ['car-2', 'atlas_car2'];
       case 'REGULAR_RED':
         return ['car-3', 'atlas_car3'];
+      case 'RACE':
+        return ['race-car', 'atlas_raceCar'];
       default:
         return undefined;
     }
@@ -299,7 +302,7 @@ class CoveyGameScene extends Phaser.Scene {
 
   changeToDrive(player : Player) {
     if (player.location) { 
-      const carType = CoveyGameScene.getCarPrefix(player.car.type);
+      const carType = CoveyGameScene.getCarPrefix(player.carType);
       if ((player.id === this.myPlayerID) && this.player && carType) {
         this.player.sprite.setTexture(carType[1], `${carType[0]}-${player.location.rotation}.000`);
       }
@@ -337,12 +340,12 @@ class CoveyGameScene extends Phaser.Scene {
         body.setVelocity(0);
 
         const primaryDirection = this.getNewMovementDirection();
-        const carType = CoveyGameScene.getCarPrefix(myPlayer.car.type);
+        const carType = CoveyGameScene.getCarPrefix(myPlayer.carType);
         if (carType) {
           switch (primaryDirection) {
             case 'left':
               body.setVelocityX(-speed);
-              if (myPlayer.isDriving) {
+              if (myPlayer.isDriving || myPlayer.isRacing) {
                 this.player.sprite.setSize(90, 40);
                 this.player.sprite.anims.play(`${carType[0]}-left`, true);
               } else {
@@ -352,7 +355,7 @@ class CoveyGameScene extends Phaser.Scene {
               break;
             case 'right':
               body.setVelocityX(speed);
-              if (myPlayer.isDriving) {
+              if (myPlayer.isDriving || myPlayer.isRacing) {
                 this.player.sprite.setSize(90, 40);
                 this.player.sprite.anims.play(`${carType[0]}-right`, true);
               } else {
@@ -362,7 +365,7 @@ class CoveyGameScene extends Phaser.Scene {
               break;
             case 'front':
               body.setVelocityY(speed);
-              if (myPlayer.isDriving) {
+              if (myPlayer.isDriving || myPlayer.isRacing) {
                 this.player.sprite.setSize(30, 40);
                 this.player.sprite.anims.play(`${carType[0]}-front`, true);
               } else {
@@ -372,7 +375,7 @@ class CoveyGameScene extends Phaser.Scene {
               break;
             case 'back':
               body.setVelocityY(-speed);
-              if (myPlayer.isDriving) {
+              if (myPlayer.isDriving || myPlayer.isRacing) {
                 this.player.sprite.setSize(30, 40);
                 this.player.sprite.anims.play(`${carType[0]}-back`, true);
               } else {
@@ -385,7 +388,7 @@ class CoveyGameScene extends Phaser.Scene {
               this.player.sprite.anims.stop();
               // If we were moving, pick and idle frame to use
               if (prevVelocity.x < 0) {
-                if (myPlayer.isDriving) {
+                if (myPlayer.isDriving || myPlayer.isRacing) {
                   this.player.sprite
                   .setTexture(carType[1], `${carType[0]}-left.000`)
                   .setSize(90, 40);
@@ -395,7 +398,7 @@ class CoveyGameScene extends Phaser.Scene {
                   .setSize(30, 40);
                 }
               } else if (prevVelocity.x > 0) {
-                if (myPlayer.isDriving) {
+                if (myPlayer.isDriving || myPlayer.isRacing) {
                   this.player.sprite
                   .setTexture(carType[1], `${carType[0]}-right.000`)
                   .setSize(90, 40);
@@ -405,7 +408,7 @@ class CoveyGameScene extends Phaser.Scene {
                   .setSize(30, 40);
                 }
               } else if (prevVelocity.y < 0) {
-                if (myPlayer.isDriving) {
+                if (myPlayer.isDriving || myPlayer.isRacing) {
                   this.player.sprite
                   .setTexture(carType[1], `${carType[0]}-back.000`)
                   .setSize(30, 40);
@@ -415,7 +418,7 @@ class CoveyGameScene extends Phaser.Scene {
                   .setSize(30, 40);
                 }
               } else if (prevVelocity.y > 0) {
-                if (myPlayer.isDriving) {
+                if (myPlayer.isDriving || myPlayer.isRacing) {
                   this.player.sprite
                   .setTexture(carType[1], `${carType[0]}-front.000`)
                   .setSize(30, 40);
@@ -697,14 +700,15 @@ class CoveyGameScene extends Phaser.Scene {
         }
         // start race
         const shouldStartRace = transporter.getData('startRace') as boolean;
-        if (shouldStartRace) {
+        const myPlayer = this.players.find(player => player.id === this.myPlayerID);
+        if (shouldStartRace && myPlayer) {
           this.racetrackStartTime = Date.now();
           this.racetrackInfoBox?.setVisible(true);
           this.emitRaceStarted();
         }
         // finish race
         const shouldFinishRace = transporter.getData('finishRace') as boolean;
-        if (shouldFinishRace) {
+        if (shouldFinishRace && myPlayer) {
           this.racetrackInfoBox?.setVisible(false);
           this.emitRaceFinished();
         }
@@ -904,6 +908,42 @@ class CoveyGameScene extends Phaser.Scene {
       key: 'car-3-back',
       frames: anims.generateFrameNames('atlas_car3', {
         prefix: 'car-3-back.',
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'race-car-left',
+      frames: anims.generateFrameNames('atlas_raceCar', {
+        prefix: 'race-car-left.',
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'race-car-right',
+      frames: anims.generateFrameNames('atlas_raceCar', {
+        prefix: 'race-car-right.',
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'race-car-front',
+      frames: anims.generateFrameNames('atlas_raceCar', {
+        prefix: 'race-car-front.',
+        zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'race-car-back',
+      frames: anims.generateFrameNames('atlas_raceCar', {
+        prefix: 'race-car-back.',
         zeroPad: 3,
       }),
       frameRate: 10,

@@ -1,16 +1,16 @@
-import { CarType, CarSpeed, ServerCar } from './Types';
+import { CarType, CarSpeed, ServerCar, RaceCarType } from './Types';
 
 export default class Car {
 
   private readonly _speed: CarSpeed;
 
-  private readonly _type: CarType;
+  private readonly _type: CarType | RaceCarType;
 
   private _active: boolean;
 
   // public sprite?: Phaser.GameObjects.Sprite;
 
-  constructor(speed: CarSpeed, type: CarType, active: boolean) {
+  constructor(speed: CarSpeed, type: CarType | RaceCarType, active: boolean) {
     this._speed = speed;
     this._type = type;
     this._active = active;
@@ -20,7 +20,7 @@ export default class Car {
     return this._speed;
   }
 
-  get type(): CarType {
+  get type(): CarType | RaceCarType {
     return this._type;
   }
 

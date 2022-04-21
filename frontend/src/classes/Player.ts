@@ -1,5 +1,5 @@
 import Car from './Car/Car';
-import { ServerCar, CarType } from './Car/Types';
+import { ServerCar, CarType, RaceCarType } from './Car/Types';
 
 const PLAYER_WALKING_SPEED = 175;
 
@@ -16,11 +16,17 @@ export default class Player {
 
   public car: Car;
 
+  private raceCar: Car;
+
+  private _isRacing: boolean;
+
   constructor(id: string, userName: string, location: UserLocation, car: Car) {
     this._id = id;
     this._userName = userName;
     this.location = location;
     this.car = car;
+    this._isRacing = false;
+    this.raceCar = new Car(700, 'RACE', false);
   }
 
   get userName(): string {
@@ -39,7 +45,26 @@ export default class Player {
     this.car.active = isDriving;
   }
 
+  get isRacing(): boolean {
+    return this._isRacing;
+  }
+
+  set isRacing(isRacing: boolean) {
+    this._isRacing = isRacing;
+    this.raceCar.active = isRacing;
+  }
+
+  get carType(): CarType | RaceCarType {
+    if (this.isRacing) {
+      return this.raceCar.type;
+    }
+    return this.car.type;
+  }
+
   get speed(): number {
+    if (this.isRacing) {
+      return this.raceCar.speed;
+    }
     return this.isDriving ? this.car.speed : PLAYER_WALKING_SPEED;
   }
 
